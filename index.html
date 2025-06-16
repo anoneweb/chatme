@@ -2,29 +2,32 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Chat Minimalis</title>
+  <title>Chat Minimalis - Versi Lengkap</title>
   <style>
     body { font-family: Arial, sans-serif; max-width: 600px; margin: 20px auto; }
-    #chat { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; }
-    #inputMsg { width: 80%; padding: 10px; }
+    #chat { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; background: #f9f9f9; }
+    #inputUser { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+    #inputMsg { width: 80%; padding: 10px; box-sizing: border-box; }
     #sendBtn { padding: 10px 15px; }
     .msg { margin: 5px 0; }
-    .user { font-weight: bold; }
+    .user { font-weight: bold; color: #007bff; }
+    .timestamp { font-size: 0.8em; color: #888; margin-left: 10px; }
   </style>
 </head>
 <body>
-  <h2>Chat Minimalis</h2>
+  <h2>Chat Minimalis (Versi Lengkap)</h2>
+
+  <input id="inputUser" type="text" placeholder="Masukkan nama kamu" />
   <div id="chat"></div>
-  <input id="inputUser" type="text" placeholder="Nama kamu" />
-  <br /><br />
   <input id="inputMsg" type="text" placeholder="Tulis pesan..." />
   <button id="sendBtn">Kirim</button>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <script>
-    // Ganti config ini dengan milik kamu dari Firebase Console
+    // Ganti config ini dengan config Firebase milik kamu
     const firebaseConfig = {
       apiKey: "API_KEY_KAMU",
       authDomain: "PROJECT_ID.firebaseapp.com",
@@ -43,31 +46,56 @@
     const inputMsg = document.getElementById('inputMsg');
     const sendBtn = document.getElementById('sendBtn');
 
+    // Ambil nama user dari localStorage kalau ada
+    const savedUser = localStorage.getItem('chatUser');
+    if (savedUser) {
+      inputUser.value = savedUser;
+    }
+
+    // Simpan nama user ke localStorage saat berubah
+    inputUser.addEventListener('change', () => {
+      localStorage.setItem('chatUser', inputUser.value.trim());
+    });
+
+    // Fungsi untuk format timestamp ke jam:menit
+    function formatTime(ts) {
+      const d = new Date(ts);
+      const h = d.getHours().toString().padStart(2, '0');
+      const m = d.getMinutes().toString().padStart(2, '0');
+      return `${h}:${m}`;
+    }
+
+    // Fungsi menambah pesan ke chatDiv
+    function addMessage(data) {
+      const div = document.createElement('div');
+      div.classList.add('msg');
+      div.innerHTML = `<span class="user">${data.user}:</span> ${data.text} <span class="timestamp">${formatTime(data.timestamp)}</span>`;
+      chatDiv.appendChild(div);
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    // Kirim pesan ke Firebase
     sendBtn.onclick = () => {
       const user = inputUser.value.trim();
       const msg = inputMsg.value.trim();
-      if (!user) return alert('Masukkan nama kamu');
-      if (!msg) return alert('Tulis pesan dulu');
+      if (!user) return alert('Masukkan nama kamu dulu ya');
+      if (!msg) return alert('Tulis pesan dulu dong');
 
       const msgData = {
-        user: user,
+        user,
         text: msg,
         timestamp: Date.now()
       };
 
-      // Simpan pesan ke database
       db.ref('messages').push(msgData);
       inputMsg.value = '';
+      inputMsg.focus();
     };
 
-    // Dengar pesan baru realtime
+    // Ambil pesan lama dan dengarkan pesan baru realtime
     db.ref('messages').on('child_added', snapshot => {
       const data = snapshot.val();
-      const div = document.createElement('div');
-      div.classList.add('msg');
-      div.innerHTML = `<span class="user">${data.user}:</span> ${data.text}`;
-      chatDiv.appendChild(div);
-      chatDiv.scrollTop = chatDiv.scrollHeight;
+      addMessage(data);
     });
   </script>
 </body>
