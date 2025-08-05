@@ -152,15 +152,6 @@
       position: relative;
       min-height: 400px;
     }
-    #search-chat {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      box-sizing: border-box;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
     #message {
       width: calc(100% - 90px);
       padding: 8px;
@@ -193,6 +184,19 @@
       margin-bottom: 10px;
       font-weight: bold;
       text-align: center;
+    }
+
+    /* Tambahan style untuk input filter chat */
+    #chat-filter {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto 10px auto;
+      display: block;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
     }
 
     /* Responsive tweaks */
@@ -231,8 +235,8 @@
   <div id="user-display"></div>
   <button id="btn-logout">Logout</button>
 
-  <!-- Input pencarian chat -->
-  <input type="search" id="search-chat" placeholder="Cari chat..." autocomplete="off" />
+  <!-- Input filter chat ditambahkan -->
+  <input type="text" id="chat-filter" placeholder="Cari chat..." autocomplete="off" />
 
   <div id="chat"></div>
   <input type="text" id="message" placeholder="Ketik pesan..." autocomplete="off" />
@@ -269,8 +273,9 @@
   const btnSend = document.getElementById('btn-send');
   const btnLogout = document.getElementById('btn-logout');
   const formTitle = document.getElementById('form-title');
-  const searchInput = document.getElementById('search-chat');
+  const chatFilterInput = document.getElementById('chat-filter');
 
+  // Daftar avatar default dari DiceBear (tipe avataaars dengan seed angka unik)
   const avatars = [
     'https://api.dicebear.com/6.x/avataaars/svg?seed=1',
     'https://api.dicebear.com/6.x/avataaars/svg?seed=2',
@@ -285,7 +290,7 @@
   ];
 
   let loggedInUsername = null;
-  let loggedInAvatar = null;
+  let loggedInAvatar = null; // Simpan avatar user yang login
   let isRegisterMode = false;
 
   function validateUsername(username) {
@@ -296,213 +301,232 @@
     return password.length >= 6;
   }
 
-  function formatTimestamp(date) {
-    const pad = (n) => n.toString().padStart(2, '0');
-    return `${pad(date.getHours())}:${pad(date.getMinutes())} ${pad(date.getDate())}${pad(date.getMonth()+1)}${date.getFullYear().toString().slice(-2)}`;
+  // Ambil avatar berdasarkan username (hash sederhana)
+  function getAvatarForUsername(username) {
+    let sum = 0;
+    for (let i = 0; i < username.length; i++) {
+      sum += username.charCodeAt(i);
+    }
+    return avatars[sum % avatars.length];
   }
 
-  async function pickUniqueAvatar() {
-    const usersRef = ref(db, 'users');
-    const snapshot = await get(usersRef);
-    const usedAvatars = new Set();
-
-    if (snapshot.exists()) {
-      const users = snapshot.val();
-      for (const user in users) {
-        if (users[user].avatar) {
-          usedAvatars.add(users[user].avatar);
-        }
-      }
-    }
-
-    const available = avatars.filter(a => !usedAvatars.has(a));
-    if (available.length === 0) {
-      return avatars[Math.floor(Math.random() * avatars.length)];
-    }
-    return available[Math.floor(Math.random() * available.length)];
-  }
-
-  registerLink.onclick = () => {
-    isRegisterMode = !isRegisterMode;
-    if (isRegisterMode) {
-      formTitle.textContent = 'Register';
-      btnAction.textContent = 'Register';
-      registerLink.textContent = 'Sudah punya akun? Login disini';
-    } else {
-      formTitle.textContent = 'Login';
-      btnAction.textContent = 'Login';
-      registerLink.textContent = 'Belum punya akun? Daftar disini';
-    }
-    usernameInput.value = '';
-    passwordInput.value = '';
-  };
-
-  btnAction.onclick = async () => {
+  // Login atau register handler
+  btnAction.addEventListener('click', () => {
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
 
     if (!validateUsername(username)) {
-      alert("Username hanya boleh huruf dan angka tanpa spasi atau karakter khusus.");
+      alert('Username hanya boleh huruf dan angka tanpa spasi.');
       return;
     }
     if (!validatePassword(password)) {
-      alert("Password minimal 6 karakter.");
+      alert('Password minimal 6 karakter.');
       return;
     }
 
-    if (isRegisterMode) {
-      const userRef = ref(db, 'users/' + username);
-      const snapshot = await get(userRef);
-      if (snapshot.exists()) {
-        alert("Username sudah terdaftar, coba username lain.");
-        return;
-      }
-      const avatar = await pickUniqueAvatar();
+    const userRef = ref(db, 'users/' + username);
 
-      await set(userRef, { password: password, avatar: avatar });
-      alert("Registrasi berhasil! Silakan login.");
+    if (isRegisterMode) {
+      // Daftar baru
+      get(userRef).then(snapshot => {
+        if (snapshot.exists()) {
+          alert('Username sudah digunakan, coba yang lain.');
+        } else {
+          // Simpan user baru
+          set(userRef, { password: password }).then(() => {
+            alert('Registrasi berhasil, silakan login.');
+            toggleLoginRegister();
+          });
+        }
+      });
+    } else {
+      // Login
+      get(userRef).then(snapshot => {
+        if (!snapshot.exists()) {
+          alert('Username tidak ditemukan.');
+          return;
+        }
+        const userData = snapshot.val();
+        if (userData.password !== password) {
+          alert('Password salah.');
+          return;
+        }
+        // Login sukses
+        loggedInUsername = username;
+        loggedInAvatar = getAvatarForUsername(username);
+        loginSection.style.display = 'none';
+        chatSection.style.display = 'block';
+        userDisplay.textContent = 'Logged in sebagai: ' + loggedInUsername;
+        loadChatMessages();
+      });
+    }
+  });
+
+  // Toggle antara login dan register
+  registerLink.addEventListener('click', () => {
+    toggleLoginRegister();
+  });
+
+  function toggleLoginRegister() {
+    if (isRegisterMode) {
+      // Switch to login
       isRegisterMode = false;
       formTitle.textContent = 'Login';
       btnAction.textContent = 'Login';
       registerLink.textContent = 'Belum punya akun? Daftar disini';
-      usernameInput.value = '';
       passwordInput.value = '';
     } else {
-      const userRef = ref(db, 'users/' + username);
-      const snapshot = await get(userRef);
-      if (!snapshot.exists()) {
-        alert("Username tidak ditemukan.");
-        return;
-      }
-      const data = snapshot.val();
-      if (data.password !== password) {
-        alert("Password salah.");
-        return;
-      }
-      loggedInUsername = username;
-      loggedInAvatar = data.avatar || avatars[0];
-      loginSection.style.display = 'none';
-      chatSection.style.display = 'block';
-      userDisplay.textContent = `Selamat datang, ${loggedInUsername}`;
-      loadChatMessages();
+      // Switch to register
+      isRegisterMode = true;
+      formTitle.textContent = 'Register';
+      btnAction.textContent = 'Register';
+      registerLink.textContent = 'Sudah punya akun? Login disini';
+      passwordInput.value = '';
     }
-  };
+  }
 
-  btnLogout.onclick = () => {
+  btnLogout.addEventListener('click', () => {
     loggedInUsername = null;
     loggedInAvatar = null;
-    chatDiv.innerHTML = '';
-    messageInput.value = '';
-    searchInput.value = '';
-    loginSection.style.display = 'block';
     chatSection.style.display = 'none';
-  };
+    loginSection.style.display = 'block';
+    usernameInput.value = '';
+    passwordInput.value = '';
+    chatDiv.innerHTML = '';
+    allMessages = [];
+    chatFilterInput.value = '';
+  });
 
-  btnSend.onclick = async () => {
-    const message = messageInput.value.trim();
-    if (!message) return;
-    if (!loggedInUsername) return;
+  btnSend.addEventListener('click', () => {
+    sendMessage();
+  });
 
-    const messagesRef = ref(db, 'messages');
-    const newMsgRef = push(messagesRef);
+  messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  function sendMessage() {
+    const msg = messageInput.value.trim();
+    if (msg === '') return;
+
+    const chatRef = ref(db, 'chat');
+    const newMsgRef = push(chatRef);
 
     const now = new Date();
-    const data = {
+    const timestamp = now.getTime();
+
+    const msgData = {
       username: loggedInUsername,
-      message: message,
-      timestamp: now.getTime(),
-      avatar: loggedInAvatar
+      avatar: loggedInAvatar,
+      message: msg,
+      time: timestamp
     };
 
-    await set(newMsgRef, data);
+    set(newMsgRef, msgData).then(() => {
+      messageInput.value = '';
+    }).catch(err => {
+      alert('Gagal mengirim pesan: ' + err.message);
+    });
+  }
 
-    messageInput.value = '';
-  };
-
-  function addChatMessage({username, message, timestamp, avatar}) {
-    const msgDiv = document.createElement('div');
-    msgDiv.classList.add('chat-message');
-    msgDiv.classList.add(username === loggedInUsername ? 'right' : 'left');
+  function createMessageElement(msgData) {
+    const div = document.createElement('div');
+    const isRight = (msgData.username === loggedInUsername);
+    div.classList.add('chat-message', isRight ? 'right' : 'left');
 
     // Avatar
-    const avatarImg = document.createElement('img');
-    avatarImg.src = avatar;
-    avatarImg.alt = username;
-    avatarImg.className = 'avatar';
+    const img = document.createElement('img');
+    img.src = msgData.avatar || getAvatarForUsername(msgData.username);
+    img.alt = 'avatar';
+    img.className = 'avatar';
 
-    // Username and time container
-    const userTimeDiv = document.createElement('div');
-    userTimeDiv.className = 'username-time';
-
-    const userSpan = document.createElement('span');
-    userSpan.textContent = username;
+    // Username & time
+    const meta = document.createElement('div');
+    meta.className = 'username-time';
+    meta.textContent = msgData.username;
 
     const timeSpan = document.createElement('span');
     timeSpan.className = 'time';
-    timeSpan.textContent = formatTimestamp(new Date(timestamp));
-
-    userTimeDiv.appendChild(userSpan);
-    userTimeDiv.appendChild(timeSpan);
+    timeSpan.textContent = formatTime(msgData.time);
+    meta.appendChild(timeSpan);
 
     // Message text
-    const msgTextDiv = document.createElement('div');
-    msgTextDiv.className = 'message-text';
-    msgTextDiv.textContent = message;
+    const text = document.createElement('div');
+    text.className = 'message-text';
+    text.textContent = msgData.message;
 
-    // Compose message div children order based on alignment
-    if (username === loggedInUsername) {
-      // right: message text, then avatar, username/time on right side
-      msgDiv.appendChild(msgTextDiv);
-      msgDiv.appendChild(userTimeDiv);
-      msgDiv.appendChild(avatarImg);
+    // Arrange children based on left/right
+    if (isRight) {
+      div.appendChild(text);
+      div.appendChild(meta);
+      div.appendChild(img);
     } else {
-      // left: avatar, username/time, message text
-      msgDiv.appendChild(avatarImg);
-      const containerLeft = document.createElement('div');
-      containerLeft.style.display = 'flex';
-      containerLeft.style.flexDirection = 'column';
-      containerLeft.appendChild(userTimeDiv);
-      containerLeft.appendChild(msgTextDiv);
-      msgDiv.appendChild(containerLeft);
+      div.appendChild(img);
+      div.appendChild(meta);
+      div.appendChild(text);
     }
 
-    chatDiv.appendChild(msgDiv);
+    return div;
+  }
+
+  function formatTime(timestamp) {
+    const d = new Date(timestamp);
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // -- FILTER CHAT IMPLEMENTATION --
+
+  // Simpan semua pesan chat di sini agar bisa difilter client side
+  let allMessages = [];
+
+  // Render pesan dengan filter teks
+  function renderMessages(filter = '') {
+    chatDiv.innerHTML = '';
+    const filterLower = filter.toLowerCase();
+
+    // Filter pesan jika ada filter
+    const filtered = allMessages.filter(msg =>
+      msg.message.toLowerCase().includes(filterLower) ||
+      msg.username.toLowerCase().includes(filterLower)
+    );
+
+    filtered.forEach(msgData => {
+      const msgEl = createMessageElement(msgData);
+      chatDiv.appendChild(msgEl);
+    });
+
     chatDiv.scrollTop = chatDiv.scrollHeight;
   }
 
-  async function loadChatMessages() {
+  function loadChatMessages() {
+    const chatRef = ref(db, 'chat');
     chatDiv.innerHTML = '';
-    const messagesRef = ref(db, 'messages');
-    const snapshot = await get(messagesRef);
-    if (!snapshot.exists()) return;
-    const data = snapshot.val();
-    // messages sorted by timestamp ascending
-    const msgs = Object.values(data).sort((a,b) => a.timestamp - b.timestamp);
-    msgs.forEach(addChatMessage);
-  }
+    allMessages = [];
 
-  // Live update new messages
-  onChildAdded(ref(db, 'messages'), (data) => {
-    if (!loggedInUsername) return;
-    const msg = data.val();
-    addChatMessage(msg);
-  });
-
-  // Filter chat messages by search input
-  searchInput.addEventListener('input', () => {
-    const filterText = searchInput.value.toLowerCase();
-    const messages = chatDiv.querySelectorAll('.chat-message');
-
-    messages.forEach(msgEl => {
-      const username = msgEl.querySelector('.username-time span').textContent.toLowerCase();
-      const messageText = msgEl.querySelector('.message-text').textContent.toLowerCase();
-
-      if (username.includes(filterText) || messageText.includes(filterText)) {
-        msgEl.style.display = '';
-      } else {
-        msgEl.style.display = 'none';
+    // Ambil semua pesan saat ini
+    get(chatRef).then(snapshot => {
+      if (snapshot.exists()) {
+        const messages = snapshot.val();
+        for (const msgId in messages) {
+          allMessages.push(messages[msgId]);
+        }
+        renderMessages(chatFilterInput.value);
       }
     });
+
+    // Dengar pesan baru secara realtime
+    onChildAdded(chatRef, (data) => {
+      allMessages.push(data.val());
+      renderMessages(chatFilterInput.value);
+    });
+  }
+
+  // Event filter chat input
+  chatFilterInput.addEventListener('input', (e) => {
+    renderMessages(e.target.value);
   });
 
 </script>
