@@ -257,18 +257,18 @@
   const btnLogout = document.getElementById('btn-logout');
   const formTitle = document.getElementById('form-title');
 
-  // Daftar avatar default (pastikan link bisa diakses)
+  // Daftar avatar default dari DiceBear (tipe avataaars dengan seed angka unik)
   const avatars = [
-    'https://i.pravatar.cc/150?img=1',
-    'https://i.pravatar.cc/150?img=2',
-    'https://i.pravatar.cc/150?img=3',
-    'https://i.pravatar.cc/150?img=4',
-    'https://i.pravatar.cc/150?img=5',
-    'https://i.pravatar.cc/150?img=6',
-    'https://i.pravatar.cc/150?img=7',
-    'https://i.pravatar.cc/150?img=8',
-    'https://i.pravatar.cc/150?img=9',
-    'https://i.pravatar.cc/150?img=10'
+    'https://api.dicebear.com/6.x/avataaars/svg?seed=1',
+    'https://api.dicebear.com/6.x/avataaars/svg?seed=2',
+    'https://api.dicebear.com/6.x/avataaars/svg?seed=3',
+    'https://api.dicebear.com/6.x/avataaars/svg?seed=4',
+    'https://api.dicebear.com/6.x/avataaars/svg?seed=5',
+    'https://api.dicebear.com/6.x/avataaars/svg?seed=6',
+    'https://api.dicebear.com/6.x/avataaars/svg?seed=7',
+    'https://api.dicebear.com/6.x/avataaars/svg?seed=8',
+    'https://api.dicebear.com/6.x/avataaars/svg?seed=9',
+    'https://api.dicebear.com/6.x/avataaars/svg?seed=10'
   ];
 
   let loggedInUsername = null;
@@ -393,60 +393,104 @@
 
   btnSend.onclick = async () => {
     const msg = messageInput.value.trim();
-    if (!msg) return alert("Pesan tidak boleh kosong.");
+    if (!msg) return;
 
-    const now = new Date();
-    const timestamp = now.toISOString();
-
-    const chatRef = ref(db, 'chats');
-    await push(chatRef, {
+    const chatRef = ref(db, 'chat');
+    const newMsgRef = push(chatRef);
+    await set(newMsgRef, {
       username: loggedInUsername,
+      avatar: loggedInAvatar,
       message: msg,
-      timestamp: timestamp,
-      avatar: loggedInAvatar // Kirim avatar juga supaya bisa tampilin avatar realtime tanpa harus fetch user tiap pesan
+      timestamp: Date.now()
     });
+
     messageInput.value = '';
   };
 
+  function createMessageElement({username, avatar, message, timestamp}) {
+    const div = document.createElement('div');
+    div.classList.add('chat-message');
+
+    if (username === loggedInUsername) {
+      div.classList.add('right');
+    } else {
+      div.classList.add('left');
+    }
+
+    const avatarImg = document.createElement('img');
+    avatarImg.classList.add('avatar');
+    avatarImg.src = avatar;
+    avatarImg.alt = username + ' avatar';
+    avatarImg.loading = 'lazy';
+
+    const contentDiv = document.createElement('div');
+    contentDiv.style.display = 'flex';
+    contentDiv.style.flexDirection = 'column';
+
+    const usernameTimeDiv = document.createElement('div');
+    usernameTimeDiv.classList.add('username-time');
+
+    const usernameSpan = document.createElement('span');
+    usernameSpan.textContent = username;
+    usernameTimeDiv.appendChild(usernameSpan);
+
+    const timeSpan = document.createElement('span');
+    timeSpan.classList.add('time');
+    timeSpan.textContent = formatTimestamp(new Date(timestamp));
+    usernameTimeDiv.appendChild(timeSpan);
+
+    const messageTextDiv = document.createElement('div');
+    messageTextDiv.classList.add('message-text');
+    messageTextDiv.textContent = message;
+
+    contentDiv.appendChild(usernameTimeDiv);
+    contentDiv.appendChild(messageTextDiv);
+
+    if (username === loggedInUsername) {
+      // avatar kanan
+      div.appendChild(contentDiv);
+      div.appendChild(avatarImg);
+    } else {
+      // avatar kiri
+      div.appendChild(avatarImg);
+      div.appendChild(contentDiv);
+    }
+
+    return div;
+  }
+
   function loadChatMessages() {
+    const chatRef = ref(db, 'chat');
     chatDiv.innerHTML = '';
-    const chatRef = ref(db, 'chats');
-    onChildAdded(chatRef, (snapshot) => {
-      const data = snapshot.val();
-      const messageEl = document.createElement('div');
-      messageEl.classList.add('chat-message');
 
-      if (data.username === loggedInUsername) {
-        messageEl.classList.add('right');
-      } else {
-        messageEl.classList.add('left');
+    // Ambil semua pesan saat ini
+    get(chatRef).then(snapshot => {
+      if (snapshot.exists()) {
+        const messages = snapshot.val();
+        for (const msgId in messages) {
+          const msgData = messages[msgId];
+          const msgEl = createMessageElement(msgData);
+          chatDiv.appendChild(msgEl);
+        }
+        chatDiv.scrollTop = chatDiv.scrollHeight;
       }
+    });
 
-      const date = new Date(data.timestamp);
-      const formattedTime = formatTimestamp(date);
-
-      const avatarUrl = data.avatar || avatars[0]; // fallback avatar
-
-      messageEl.innerHTML = `
-        <img src="${avatarUrl}" alt="avatar" class="avatar" loading="lazy" />
-        <div>
-          <div class="username-time">
-            ${data.username} <span class="time">${formattedTime}</span>
-          </div>
-          <div class="message-text">${escapeHtml(data.message)}</div>
-        </div>
-      `;
-
-      chatDiv.appendChild(messageEl);
+    // Dengarkan pesan baru realtime
+    onChildAdded(chatRef, (data) => {
+      const msgData = data.val();
+      const msgEl = createMessageElement(msgData);
+      chatDiv.appendChild(msgEl);
       chatDiv.scrollTop = chatDiv.scrollHeight;
     });
   }
 
-  function escapeHtml(text) {
-    return text.replace(/[&<>"']/g, function(m) {
-      return {'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[m];
-    });
-  }
+  // Kirim pesan saat enter di kolom pesan
+  messageInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      btnSend.click();
+    }
+  });
 </script>
 
 </body>
