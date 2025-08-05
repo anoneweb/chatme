@@ -159,6 +159,46 @@
       font-weight: bold;
       text-align: center;
     }
+
+    /* Responsive tambahan untuk tampilan HP */
+    @media screen and (max-width: 480px) {
+      #login-section, #chat-section {
+        padding: 20px 15px;
+        margin: 10px;
+        max-width: 100%;
+        border-radius: 12px;
+      }
+
+      input[type="text"], input[type="password"] {
+        font-size: 14px;
+        padding: 10px 12px;
+      }
+
+      button {
+        font-size: 14px;
+        padding: 12px;
+      }
+
+      #message {
+        width: calc(100% - 90px);
+        padding: 10px 12px;
+        bottom: 14px;
+        left: 12px;
+        font-size: 14px;
+      }
+
+      #btn-send {
+        width: 70px;
+        padding: 10px;
+        bottom: 14px;
+        right: 12px;
+        font-size: 13px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
   </style>
 </head>
 <body>
