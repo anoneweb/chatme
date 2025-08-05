@@ -84,6 +84,20 @@
     button:hover {
       background-color: #3b82f6;
     }
+    /* Tombol logout tetap seperti sebelumnya */
+    #btn-logout {
+      background: #ef4444;
+      margin-top: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+    #btn-logout:hover {
+      background: #dc2626;
+    }
     #user-display {
       margin-bottom: 10px;
       font-weight: bold;
@@ -108,12 +122,12 @@
   <div id="chat"></div>
   <input type="text" id="message" placeholder="Ketik pesan..." />
   <button id="btn-send">Kirim</button>
-  <button id="btn-logout" style="background:#ef4444; margin-top:10px;">Logout</button>
+  <button id="btn-logout">Logout</button>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import { getDatabase, ref, get, set, push, onChildAdded, remove } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+  import { getDatabase, ref, get, set, push, onChildAdded } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
   // Konfigurasi Firebase (ganti sesuai milikmu)
   const firebaseConfig = {
@@ -215,8 +229,8 @@
 
     loggedInUsername = username;
     userDisplay.textContent = `Logged in as: ${username}`;
-    loginSection.style.display = 'none';
-    chatSection.style.display = 'block';
+    loginSection.style.display = 'none';  // sembunyikan login/register
+    chatSection.style.display = 'block';  // tampilkan chat
     usernameInput.value = '';
     passwordInput.value = '';
     loadChatMessages();
@@ -226,8 +240,8 @@
   btnLogout.onclick = () => {
     loggedInUsername = null;
     chatDiv.innerHTML = '';
-    loginSection.style.display = 'block';
-    chatSection.style.display = 'none';
+    loginSection.style.display = 'block';  // munculkan login/register lagi
+    chatSection.style.display = 'none';    // sembunyikan chat
   };
 
   // Kirim pesan
