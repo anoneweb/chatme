@@ -2,16 +2,24 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Chat Web Firebase</title>
+  <title>Chat Web Firebase dengan Username</title>
   <style>
     #chat { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; }
     body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
-    #message { width: 80%; padding: 10px; }
+    #message { width: 70%; padding: 10px; }
     button { padding: 10px; }
+    .message {
+      margin-bottom: 8px;
+    }
+    .username {
+      font-weight: bold;
+      margin-right: 5px;
+      color: #007bff;
+    }
   </style>
 </head>
 <body>
-  <h1>Chat Sederhana</h1>
+  <h1>Chat Sederhana dengan Username</h1>
   <div id="chat"></div>
   <input type="text" id="message" placeholder="Ketik pesan..." />
   <button onclick="sendMessage()">Kirim</button>
@@ -21,7 +29,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
-    // Konfigurasi Firebase kamu (ambil dari Firebase Console)
+    // Firebase config (ganti dengan milik kamu)
     const firebaseConfig = {
       apiKey: "AIzaSyAj1lv5LJcOBfce16dPOe_2T5NlnhgV7LU",
       authDomain: "chat-minimalis.firebaseapp.com",
@@ -41,11 +49,19 @@
     const chat = document.getElementById("chat");
     const messageInput = document.getElementById("message");
 
+    // Minta username ke user
+    let username = "";
+    while (!username) {
+      username = prompt("Masukkan username kamu:");
+      if (!username) alert("Username wajib diisi!");
+    }
+
     // Listen pesan baru realtime
     chatRef.on("child_added", (snapshot) => {
       const data = snapshot.val();
       const div = document.createElement("div");
-      div.textContent = data;
+      div.classList.add("message");
+      div.innerHTML = `<span class="username">${data.username}:</span> ${data.message}`;
       chat.appendChild(div);
       chat.scrollTop = chat.scrollHeight;
     });
@@ -54,7 +70,7 @@
     function sendMessage() {
       const msg = messageInput.value.trim();
       if (msg) {
-        chatRef.push(msg);
+        chatRef.push({ username, message: msg });
         messageInput.value = "";
       }
     }
