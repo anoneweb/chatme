@@ -4,52 +4,40 @@
   <meta charset="UTF-8" />
   <title>PRIVATE ROOM - Chat Online</title>
   <style>
-    /* Reset dan box sizing */
+    /* Reset box-sizing untuk semua elemen */
     *, *::before, *::after {
       box-sizing: border-box;
     }
 
     body {
       font-family: sans-serif;
-      margin: 0;
-      padding: 20px;
+      margin: 20px;
       background: linear-gradient(135deg, #a0c4ff, #d0f0c0);
       color: #333;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
-
     h1 {
       text-align: center;
       margin-bottom: 20px;
-      width: 100%;
-      max-width: 500px;
     }
-
     #login-section, #chat-section {
       max-width: 500px;
       width: 100%;
+      margin: 0 auto;
       background: white;
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 0 8px rgba(0,0,0,0.2);
       position: relative;
-      box-sizing: border-box;
     }
-
     #chat {
       border: 1px solid #ccc;
       height: 300px;
       overflow-y: scroll;
       padding: 10px;
       background: #f9f9f9;
-      margin-bottom: 60px;
+      margin-bottom: 80px;
       position: relative;
-      word-wrap: break-word;
     }
-
     .chat-message {
       max-width: 60%;
       margin-bottom: 10px;
@@ -57,54 +45,49 @@
       border-radius: 12px;
       clear: both;
       display: block;
-      font-size: 14px;
       word-wrap: break-word;
+      word-break: break-word;
+      font-size: 14px;
     }
-
     .chat-message.left {
       background-color: #d0f0c0;
       float: left;
       text-align: left;
     }
-
     .chat-message.right {
       background-color: #a0c4ff;
       float: right;
       text-align: right;
     }
-
     .username-time {
       font-weight: bold;
       font-size: 12px;
       margin-bottom: 2px;
     }
-
     .time {
       font-weight: normal;
       font-size: 11px;
       color: #444;
       margin-left: 8px;
     }
-
+    .message-text {
+      margin-left: 12px;
+    }
     #login-section {
       text-align: center;
     }
-
     #login-section input[type=text],
     #login-section input[type=password] {
-      width: calc(100% - 20px);
-      max-width: 300px;
-      margin: 0 auto 10px auto;
+      width: 100%;
+      margin-bottom: 10px;
       display: block;
       padding: 8px;
       font-size: 14px;
       border: 1px solid #ccc;
       border-radius: 6px;
     }
-
     #login-section button {
-      width: calc(100% - 20px);
-      max-width: 300px;
+      width: 100%;
       padding: 10px 0;
       font-size: 14px;
       background-color: #60a5fa;
@@ -113,15 +96,10 @@
       color: white;
       cursor: pointer;
       margin-bottom: 10px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
     }
-
     #login-section button:hover {
       background-color: #3b82f6;
     }
-
     #register-link {
       color: #2563eb;
       cursor: pointer;
@@ -129,7 +107,6 @@
       display: block;
       user-select: none;
     }
-
     #btn-logout {
       background: #ef4444;
       position: absolute;
@@ -143,29 +120,24 @@
       cursor: pointer;
       width: auto;
       margin-bottom: 0;
-      z-index: 10;
     }
-
     #btn-logout:hover {
       background: #dc2626;
     }
-
     #chat-section {
       position: relative;
     }
-
     #message {
       width: calc(100% - 90px);
+      max-width: calc(100% - 90px);
       padding: 8px;
       font-size: 14px;
       border: 1px solid #ccc;
       border-radius: 6px;
-      box-sizing: border-box;
       position: absolute;
       bottom: 15px;
       left: 15px;
     }
-
     #btn-send {
       position: absolute;
       bottom: 15px;
@@ -180,42 +152,39 @@
       color: white;
       cursor: pointer;
     }
-
     #btn-send:hover {
       background-color: #3b82f6;
     }
-
     #user-display {
       margin-bottom: 10px;
       font-weight: bold;
       text-align: center;
     }
 
-    /* RESPONSIVE */
-
-    @media (max-width: 600px) {
+    /* Responsive tweaks */
+    @media (max-width: 520px) {
       body {
-        padding: 10px;
+        margin: 10px;
       }
-
-      h1 {
-        max-width: 100%;
-        font-size: 1.5rem;
-      }
-
       #login-section, #chat-section {
-        max-width: 100%;
         padding: 15px;
         border-radius: 8px;
       }
-
       #message {
         width: calc(100% - 85px);
-      }
-
-      .chat-message {
-        max-width: 80%;
+        max-width: calc(100% - 85px);
         font-size: 13px;
+        padding: 7px;
+      }
+      #btn-send {
+        width: 60px;
+        font-size: 13px;
+        padding: 7px;
+      }
+      .chat-message {
+        max-width: 75%;
+        font-size: 13px;
+        padding: 6px 10px;
       }
     }
   </style>
