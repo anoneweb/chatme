@@ -4,253 +4,251 @@
   <meta charset="UTF-8" />
   <title>PRIVATE ROOM</title>
   <style>
-    /* Background gradasi baby blue ke hijau muda */
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      max-width: 600px;
-      margin: 20px auto;
+      font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #a3cef1, #b7e4c7);
-      color: #1a1a1a;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      margin: 0; padding: 0;
+      display: flex; flex-direction: column; align-items: center;
+      min-height: 100vh;
     }
-
     h1 {
-      text-align: center;
-      font-weight: 700;
-      margin-bottom: 15px;
-      color: #1f6f8b; /* baby blue tone */
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      user-select: none;
-    }
-
-    #chat {
-      border: 1px solid #8ecae6;
-      height: 300px;
-      overflow-y: scroll;
-      padding: 15px;
-      background: rgba(255,255,255,0.85);
-      border-radius: 10px;
-      box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
       margin-top: 20px;
-    }
-
-    #message {
-      width: 70%;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid #81b29a;
-      font-size: 1rem;
-      outline-color: #52b788;
-      transition: outline-color 0.3s ease;
-    }
-
-    #message:focus {
-      outline-color: #40916c;
-    }
-
-    button {
-      padding: 12px 18px;
-      background: #52b788;
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      margin-left: 10px;
-    }
-
-    button:hover {
-      background: #40916c;
-    }
-
-    .message {
-      margin-bottom: 10px;
-      font-size: 1rem;
-    }
-
-    .username {
+      color: #114b5f;
       font-weight: 700;
-      margin-right: 6px;
-      color: #1f6f8b;
-      user-select: none;
     }
-
-    #login-register, #chat-section {
-      background: rgba(255, 255, 255, 0.9);
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-
     #login-register {
-      max-width: 400px;
-      margin: 0 auto;
+      background: white;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      width: 320px;
+      text-align: center;
     }
-
-    input {
-      padding: 12px;
-      margin: 8px 0;
+    #login-register h2 {
+      margin-top: 0;
+      color: #114b5f;
+    }
+    #login-register input {
       width: 100%;
-      box-sizing: border-box;
-      border-radius: 8px;
-      border: 1px solid #8ecae6;
-      font-size: 1rem;
-      transition: border-color 0.3s ease;
+      padding: 8px 10px;
+      margin: 8px 0;
+      border: 1.8px solid #66a5ad;
+      border-radius: 6px;
+      font-size: 15px;
     }
-
-    input:focus {
-      border-color: #52b788;
-      outline: none;
+    #login-register button {
+      width: 100%;
+      padding: 10px;
+      background: #114b5f;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s ease;
     }
-
-    #form-title {
-      text-align: center;
-      margin-bottom: 18px;
-      font-weight: 700;
-      color: #1f6f8b;
-      user-select: none;
+    #login-register button:hover {
+      background: #0d3b47;
     }
-
     #toggle-text {
-      text-align: center;
-      font-size: 0.9rem;
-      margin-top: 12px;
-      color: #333;
-      user-select: none;
+      margin-top: 15px;
+      font-size: 14px;
+      color: #114b5f;
     }
-
     #toggle-text a {
-      color: #40916c;
+      color: #118ab2;
+      cursor: pointer;
       text-decoration: none;
       font-weight: 600;
-      cursor: pointer;
-      transition: color 0.3s ease;
     }
-
     #toggle-text a:hover {
-      color: #2d6a4f;
+      text-decoration: underline;
     }
-
-    #status {
-      text-align: center;
+    #status-text {
       margin-top: 10px;
+      height: 18px;
       font-weight: 600;
+      color: red;
     }
-
-    #chat-section h3 {
+    #chat-section {
+      display: none;
+      width: 400px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      height: 500px;
+    }
+    #chat-header {
+      background: #118ab2;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 12px 12px 0 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      color: #1f6f8b;
-      user-select: none;
-    }
-
-    #logout-btn {
-      background: #d90429;
-      border-radius: 8px;
-      padding: 8px 12px;
       font-weight: 700;
-      font-size: 0.9rem;
-      margin-left: 15px;
-      transition: background 0.3s ease;
-      cursor: pointer;
     }
-
-    #logout-btn:hover {
-      background: #9b0217;
+    #chat {
+      flex: 1;
+      padding: 15px 20px;
+      overflow-y: auto;
+      background: #d1e8e2;
+      border-radius: 0 0 12px 12px;
+    }
+    .message {
+      margin-bottom: 14px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 8px 12px;
+      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+      max-width: 90%;
+    }
+    .message .msg-header {
+      font-weight: 700;
+      font-size: 14px;
+      color: #114b5f;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .message .msg-content {
+      padding-left: 8px;
+      font-size: 15px;
+      color: #333;
+      white-space: pre-wrap;
+    }
+    #message-input-section {
+      display: flex;
+      border-top: 1.5px solid #ccc;
+      padding: 10px 15px;
+      background: #f7f9f9;
+      border-radius: 0 0 12px 12px;
+    }
+    #message-input {
+      flex: 1;
+      padding: 10px;
+      font-size: 15px;
+      border: 1.8px solid #66a5ad;
+      border-radius: 8px;
+      margin-right: 10px;
+    }
+    #send-btn {
+      background: #114b5f;
+      border: none;
+      color: white;
+      padding: 0 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #send-btn:hover {
+      background: #0d3b47;
     }
   </style>
 </head>
 <body>
   <h1>PRIVATE ROOM</h1>
 
-  <!-- Login/Register Form -->
   <div id="login-register">
-    <h3 id="form-title">Login</h3>
-    <input type="text" id="username-input" placeholder="Username" autocomplete="off" />
-    <input type="password" id="password-input" placeholder="Password" autocomplete="off" />
+    <h2 id="form-title">Login</h2>
+    <input type="text" id="username" placeholder="Username (alfanumerik)" autocomplete="off" />
+    <input type="password" id="password" placeholder="Password (min 6 karakter)" autocomplete="off" />
     <button id="action-btn">Login</button>
-    <p id="toggle-text">Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a></p>
-    <p id="status" style="color:red;"></p>
+    <div id="toggle-text">Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a></div>
+    <div id="status-text"></div>
   </div>
 
-  <!-- Chat Section, hidden awalnya -->
-  <div id="chat-section" style="display:none;">
-    <h3>Halo, <span id="user-name"></span>! <button id="logout-btn">Logout</button></h3>
+  <div id="chat-section">
+    <div id="chat-header">
+      <div>Logged in sebagai: <span id="user-name-display"></span></div>
+      <button id="logout-btn">Logout</button>
+    </div>
     <div id="chat"></div>
-    <input type="text" id="message" placeholder="Ketik pesan..." autocomplete="off" />
-    <button id="send-btn">Kirim</button>
+    <div id="message-input-section">
+      <input type="text" id="message-input" placeholder="Ketik pesan..." autocomplete="off" />
+      <button id="send-btn">Kirim</button>
+    </div>
   </div>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getDatabase, ref, get, set, push, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-  <script>
-    // Konfigurasi Firebase (ganti dengan milik kamu)
     const firebaseConfig = {
       apiKey: "AIzaSyAj1lv5LJcOBfce16dPOe_2T5NlnhgV7LU",
       authDomain: "chat-minimalis.firebaseapp.com",
       databaseURL: "https://chat-minimalis-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "chat-minimalis",
-      storageBucket: "chat-minimalis.firebasestorage.app",
+      storageBucket: "chat-minimalis.appspot.com",
       messagingSenderId: "242850342589",
       appId: "1:242850342589:web:202f8828d047097c0eb9d4",
       measurementId: "G-K7018W73KJ"
     };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    // Elemen DOM
+    // Elements
     const loginRegisterDiv = document.getElementById('login-register');
     const chatSection = document.getElementById('chat-section');
-    const formTitle = document.getElementById('form-title');
-    const usernameInput = document.getElementById('username-input');
-    const passwordInput = document.getElementById('password-input');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
     const actionBtn = document.getElementById('action-btn');
     const toggleText = document.getElementById('toggle-text');
     const toggleLink = document.getElementById('toggle-link');
-    const statusText = document.getElementById('status');
-    const userNameDisplay = document.getElementById('user-name');
+    const statusText = document.getElementById('status-text');
     const chatDiv = document.getElementById('chat');
-    const messageInput = document.getElementById('message');
-    const sendBtn = document.getElementById('send-btn');
+    const userNameDisplay = document.getElementById('user-name-display');
     const logoutBtn = document.getElementById('logout-btn');
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
 
     let isLoginMode = true;
     let currentUser = null;
 
-    // Toggle antara Login dan Register
-    toggleLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      isLoginMode = !isLoginMode;
-      formTitle.textContent = isLoginMode ? 'Login' : 'Register';
-      actionBtn.textContent = isLoginMode ? 'Login' : 'Daftar';
-      toggleText.innerHTML = isLoginMode
-        ? 'Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a>'
-        : 'Sudah punya akun? <a href="#" id="toggle-link">Login di sini</a>';
-      statusText.textContent = '';
-      usernameInput.value = '';
-      passwordInput.value = '';
-      // Reattach event listener to new link
-      const newToggleLink = toggleText.querySelector('a');
-      newToggleLink.addEventListener('click', toggleLinkClick);
-    });
+    // Utility: format timestamp ke "HH:MM DDMMYY"
+    function formatTimestamp(ts) {
+      const d = new Date(ts);
+      const pad = n => (n < 10 ? '0' + n : n);
+      const hours = pad(d.getHours());
+      const minutes = pad(d.getMinutes());
+      const day = pad(d.getDate());
+      const month = pad(d.getMonth() + 1);
+      const year = String(d.getFullYear()).slice(2);
+      return `${hours}:${minutes} ${day}${month}${year}`;
+    }
 
-    // To handle re-adding listener (for toggle links inside toggleText)
+    // Validasi input username dan password
+    function validateInput(username, password) {
+      const usernameRegex = /^[a-zA-Z0-9]+$/;
+      if (!username || !password) {
+        statusText.textContent = 'Username dan password wajib diisi.';
+        return false;
+      }
+      if (!usernameRegex.test(username)) {
+        statusText.textContent = 'Username hanya boleh huruf dan angka tanpa spasi.';
+        return false;
+      }
+      if (password.length < 6) {
+        statusText.textContent = 'Password minimal 6 karakter.';
+        return false;
+      }
+      statusText.textContent = '';
+      return true;
+    }
+
+    // Toggle form login/register
     function toggleLinkClick(e) {
       e.preventDefault();
       isLoginMode = !isLoginMode;
-      formTitle.textContent = isLoginMode ? 'Login' : 'Register';
-      actionBtn.textContent = isLoginMode ? 'Login' : 'Daftar';
+      document.getElementById('form-title').textContent = isLoginMode ? 'Login' : 'Register';
+      actionBtn.textContent = isLoginMode ? 'Login' : 'Register';
       toggleText.innerHTML = isLoginMode
         ? 'Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a>'
         : 'Sudah punya akun? <a href="#" id="toggle-link">Login di sini</a>';
@@ -260,21 +258,18 @@
       const newToggleLink = toggleText.querySelector('a');
       newToggleLink.addEventListener('click', toggleLinkClick);
     }
-
-    // Initial listener for toggle link
     toggleLink.addEventListener('click', toggleLinkClick);
 
-    // Fungsi register user baru
+    // Register user
     async function registerUser(username, password) {
       try {
-        const userRef = db.ref('users/' + username);
-        const snapshot = await userRef.get();
+        const userRef = ref(db, 'users/' + username);
+        const snapshot = await get(userRef);
         if (snapshot.exists()) {
           statusText.textContent = 'Username sudah dipakai, coba yang lain.';
           return false;
         } else {
-          // Simpan username dan password (password disimpan plain text, sebaiknya pakai hashing untuk produksi)
-          await userRef.set({ password });
+          await set(userRef, { password });
           return true;
         }
       } catch (error) {
@@ -283,11 +278,11 @@
       }
     }
 
-    // Fungsi login user
+    // Login user
     async function loginUser(username, password) {
       try {
-        const userRef = db.ref('users/' + username);
-        const snapshot = await userRef.get();
+        const userRef = ref(db, 'users/' + username);
+        const snapshot = await get(userRef);
         if (!snapshot.exists()) {
           statusText.textContent = 'Username tidak ditemukan.';
           return false;
@@ -339,13 +334,13 @@
     // Tampilkan chat section
     function showChatSection() {
       loginRegisterDiv.style.display = 'none';
-      chatSection.style.display = 'block';
+      chatSection.style.display = 'flex';
       userNameDisplay.textContent = currentUser;
       statusText.textContent = '';
       listenMessages();
     }
 
-    // Kirim pesan
+    // Kirim pesan ke Firebase
     function sendMessage() {
       const message = messageInput.value.trim();
       if (!message) return;
@@ -354,23 +349,37 @@
         message,
         timestamp: Date.now()
       };
-      db.ref('chat-messages').push(msgObj);
+      push(ref(db, 'chat-messages'), msgObj);
       messageInput.value = '';
     }
 
-    // Listen pesan realtime dan tampilkan
+    // Tampilkan pesan realtime
     function listenMessages() {
-      db.ref('chat-messages').on('value', (snapshot) => {
+      const chatRef = ref(db, 'chat-messages');
+      onValue(chatRef, (snapshot) => {
         chatDiv.innerHTML = '';
         const data = snapshot.val();
         if (data) {
           const messagesArr = Object.values(data);
           messagesArr.sort((a,b) => a.timestamp - b.timestamp);
           messagesArr.forEach(msg => {
-            const div = document.createElement('div');
-            div.classList.add('message');
-            div.innerHTML = `<span class="username">${msg.username}:</span> ${msg.message}`;
-            chatDiv.appendChild(div);
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('message');
+
+            // Header (username + waktu)
+            const headerDiv = document.createElement('div');
+            headerDiv.classList.add('msg-header');
+            headerDiv.textContent = `${msg.username} — ${formatTimestamp(msg.timestamp)}`;
+
+            // Isi pesan (menjorok)
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('msg-content');
+            contentDiv.textContent = msg.message;
+
+            msgDiv.appendChild(headerDiv);
+            msgDiv.appendChild(contentDiv);
+
+            chatDiv.appendChild(msgDiv);
           });
           chatDiv.scrollTop = chatDiv.scrollHeight;
         }
@@ -387,13 +396,10 @@
     actionBtn.addEventListener('click', async () => {
       const username = usernameInput.value.trim();
       const password = passwordInput.value.trim();
-      if (!username || !password) {
-        statusText.textContent = 'Username dan password wajib diisi.';
-        return;
-      }
-      statusText.textContent = '';
+
+      if (!validateInput(username, password)) return;
+
       if (isLoginMode) {
-        // Login
         const success = await loginUser(username, password);
         if (success) {
           currentUser = username;
@@ -401,21 +407,20 @@
           showChatSection();
         }
       } else {
-        // Register
         const success = await registerUser(username, password);
         if (success) {
           statusText.style.color = 'green';
           statusText.textContent = 'Registrasi berhasil! Silakan login.';
           isLoginMode = true;
-          formTitle.textContent = 'Login';
+          document.getElementById('form-title').textContent = 'Login';
           actionBtn.textContent = 'Login';
           toggleText.innerHTML = 'Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a>';
           usernameInput.value = '';
           passwordInput.value = '';
-          // re-attach listener
+          statusText.style.color = 'red';
+          // re-attach listener toggle
           const newToggleLink = toggleText.querySelector('a');
           newToggleLink.addEventListener('click', toggleLinkClick);
-          statusText.style.color = 'red';
         }
       }
     });
@@ -426,9 +431,8 @@
       showLoginRegister();
     });
 
-    // Mulai cek sesi login saat halaman load
+    // Mulai cek sesi login saat load halaman
     checkSession();
-
   </script>
 </body>
 </html>
