@@ -2,41 +2,43 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PRIVATE ROOM - Chat Online</title>
   <style>
-    /* Reset box-sizing untuk semua elemen */
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-
-    body {
+    html, body {
+      margin: 0;
+      padding: 10px;
+      max-width: 100vw;
+      overflow-x: hidden;
       font-family: sans-serif;
-      margin: 20px;
       background: linear-gradient(135deg, #a0c4ff, #d0f0c0);
       color: #333;
+      height: 100%;
     }
     h1 {
       text-align: center;
       margin-bottom: 20px;
     }
     #login-section, #chat-section {
-      max-width: 500px;
       width: 100%;
-      margin: 0 auto;
+      max-width: 480px;
+      margin: 20px auto;
       background: white;
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 0 8px rgba(0,0,0,0.2);
+      box-sizing: border-box;
       position: relative;
     }
     #chat {
-      border: 1px solid #ccc;
-      height: 300px;
-      overflow-y: scroll;
+      max-height: 300px;
+      overflow-y: auto;
       padding: 10px;
       background: #f9f9f9;
-      margin-bottom: 80px;
-      position: relative;
+      border: 1px solid #ccc;
+      margin-bottom: 60px;
+      border-radius: 8px;
+      word-wrap: break-word;
     }
     .chat-message {
       max-width: 60%;
@@ -45,8 +47,6 @@
       border-radius: 12px;
       clear: both;
       display: block;
-      word-wrap: break-word;
-      word-break: break-word;
       font-size: 14px;
     }
     .chat-message.left {
@@ -72,6 +72,7 @@
     }
     .message-text {
       margin-left: 12px;
+      word-break: break-word;
     }
     #login-section {
       text-align: center;
@@ -79,15 +80,18 @@
     #login-section input[type=text],
     #login-section input[type=password] {
       width: 100%;
-      margin-bottom: 10px;
+      max-width: 300px;
+      margin: 0 auto 10px auto;
       display: block;
       padding: 8px;
       font-size: 14px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      box-sizing: border-box;
     }
     #login-section button {
       width: 100%;
+      max-width: 300px;
       padding: 10px 0;
       font-size: 14px;
       background-color: #60a5fa;
@@ -96,6 +100,9 @@
       color: white;
       cursor: pointer;
       margin-bottom: 10px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
     #login-section button:hover {
       background-color: #3b82f6;
@@ -120,20 +127,22 @@
       cursor: pointer;
       width: auto;
       margin-bottom: 0;
+      z-index: 10;
     }
     #btn-logout:hover {
-      background: #dc2626;
+      background-color: #dc2626;
     }
     #chat-section {
       position: relative;
+      min-height: 400px;
     }
     #message {
       width: calc(100% - 90px);
-      max-width: calc(100% - 90px);
       padding: 8px;
       font-size: 14px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      box-sizing: border-box;
       position: absolute;
       bottom: 15px;
       left: 15px;
@@ -162,29 +171,21 @@
     }
 
     /* Responsive tweaks */
-    @media (max-width: 520px) {
-      body {
-        margin: 10px;
-      }
+    @media (max-width: 600px) {
       #login-section, #chat-section {
+        margin: 10px auto;
         padding: 15px;
-        border-radius: 8px;
+      }
+      #chat {
+        max-height: 400px;
       }
       #message {
         width: calc(100% - 85px);
-        max-width: calc(100% - 85px);
-        font-size: 13px;
-        padding: 7px;
       }
       #btn-send {
-        width: 60px;
-        font-size: 13px;
-        padding: 7px;
-      }
-      .chat-message {
-        max-width: 75%;
-        font-size: 13px;
-        padding: 6px 10px;
+        width: 65px;
+        bottom: 12px;
+        right: 12px;
       }
     }
   </style>
@@ -195,8 +196,8 @@
 
 <div id="login-section">
   <h2 id="form-title">Login</h2>
-  <input type="text" id="username" placeholder="Username (huruf & angka saja)" />
-  <input type="password" id="password" placeholder="Password (minimal 6 karakter)" />
+  <input type="text" id="username" placeholder="Username (huruf & angka saja)" autocomplete="off" />
+  <input type="password" id="password" placeholder="Password (minimal 6 karakter)" autocomplete="off" />
   <button id="btn-action">Login</button>
   <span id="register-link">Belum punya akun? Daftar disini</span>
 </div>
@@ -205,7 +206,7 @@
   <div id="user-display"></div>
   <button id="btn-logout">Logout</button>
   <div id="chat"></div>
-  <input type="text" id="message" placeholder="Ketik pesan..." />
+  <input type="text" id="message" placeholder="Ketik pesan..." autocomplete="off" />
   <button id="btn-send">Kirim</button>
 </div>
 
@@ -285,7 +286,6 @@
     }
 
     if (isRegisterMode) {
-      // Register user
       const userRef = ref(db, 'users/' + username);
       const snapshot = await get(userRef);
       if (snapshot.exists()) {
@@ -294,7 +294,6 @@
       }
       await set(userRef, { password: password });
       alert("Registrasi berhasil! Silakan login.");
-      // Kembali ke mode login
       isRegisterMode = false;
       formTitle.textContent = 'Login';
       btnAction.textContent = 'Login';
@@ -302,7 +301,6 @@
       usernameInput.value = '';
       passwordInput.value = '';
     } else {
-      // Login user
       const userRef = ref(db, 'users/' + username);
       const snapshot = await get(userRef);
       if (!snapshot.exists()) {
