@@ -29,7 +29,7 @@
       overflow-y: scroll;
       padding: 10px;
       background: #f9f9f9;
-      margin-bottom: 40px; /* space bawah untuk tombol kirim */
+      margin-bottom: 60px; /* space bawah utk input & tombol kirim */
       position: relative;
     }
     .chat-message {
@@ -66,28 +66,49 @@
     .message-text {
       margin-left: 12px;
     }
-    input[type=text], input[type=password] {
-      width: 100%;
+    /* Input login/register di tengah & max lebar 300px */
+    #login-section {
+      text-align: center;
+    }
+    #login-section input[type=text],
+    #login-section input[type=password] {
+      width: calc(100% - 20px);
+      max-width: 300px;
+      margin: 0 auto 10px auto;
+      display: block;
       padding: 8px;
-      margin-bottom: 10px;
       font-size: 14px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      box-sizing: border-box;
     }
-    button {
-      padding: 10px 16px;
+    #login-section button {
+      width: calc(100% - 20px);
+      max-width: 300px;
+      padding: 10px 0;
       font-size: 14px;
       background-color: #60a5fa;
       border: none;
       border-radius: 6px;
       color: white;
       cursor: pointer;
-      display: block;
-      width: 100%;
       margin-bottom: 10px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
-    button:hover {
+    #login-section button:hover {
       background-color: #3b82f6;
+    }
+    #register-link {
+      color: #2563eb;
+      cursor: pointer;
+      margin-bottom: 15px;
+      display: block;
+      user-select: none;
+    }
+    #btn-register {
+      display: none;
     }
     /* Tombol logout */
     #btn-logout {
@@ -107,32 +128,42 @@
     #btn-logout:hover {
       background: #dc2626;
     }
-    /* Tombol kirim di kanan bawah */
+    /* Area chat input & tombol kirim */
+    #chat-section {
+      position: relative;
+    }
+    #message {
+      width: calc(100% - 90px);
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+      position: absolute;
+      bottom: 15px;
+      left: 15px;
+    }
     #btn-send {
       position: absolute;
       bottom: 15px;
       right: 15px;
-      width: auto;
-      padding: 8px 16px;
-      margin-bottom: 0;
+      width: 70px;
+      padding: 8px;
+      margin: 0;
+      font-size: 14px;
+      background-color: #60a5fa;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+    #btn-send:hover {
+      background-color: #3b82f6;
     }
     #user-display {
       margin-bottom: 10px;
       font-weight: bold;
       text-align: center;
-    }
-    /* Teks "Belum punya akun?" */
-    #register-link {
-      color: #2563eb;
-      text-align: center;
-      cursor: pointer;
-      margin-bottom: 15px;
-      display: block;
-      user-select: none;
-    }
-    /* Hide register button by default */
-    #btn-register {
-      display: none;
     }
   </style>
 </head>
@@ -190,12 +221,10 @@
 
   let loggedInUsername = null;
 
-  // Validasi username: huruf + angka, tanpa spasi, tanpa karakter aneh
   function validateUsername(username) {
     return /^[a-zA-Z0-9]+$/.test(username);
   }
 
-  // Validasi password minimal 6 karakter
   function validatePassword(password) {
     return password.length >= 6;
   }
@@ -205,8 +234,6 @@
     return `${pad(date.getHours())}:${pad(date.getMinutes())} ${pad(date.getDate())}${pad(date.getMonth()+1)}${date.getFullYear().toString().slice(-2)}`;
   }
 
-  // Awalnya tombol register disembunyikan, form login muncul
-  // Klik "Daftar disini" tunjukkan register button dan ubah judul
   registerLink.onclick = () => {
     if (btnRegister.style.display === 'none') {
       btnRegister.style.display = 'block';
@@ -228,24 +255,22 @@
     const password = passwordInput.value;
 
     if (!validateUsername(username)) {
-      alert('Username hanya boleh huruf dan angka, tanpa spasi atau karakter lain.');
+      alert("Username hanya boleh huruf dan angka tanpa spasi atau karakter khusus.");
       return;
     }
     if (!validatePassword(password)) {
-      alert('Password minimal 6 karakter.');
+      alert("Password minimal 6 karakter.");
       return;
     }
 
     const userRef = ref(db, 'users/' + username);
     const snapshot = await get(userRef);
     if (snapshot.exists()) {
-      alert('Username sudah terdaftar, silakan login.');
+      alert("Username sudah terdaftar, coba username lain.");
       return;
     }
-
     await set(userRef, { password: password });
-    alert('Registrasi berhasil! Silakan login.');
-    // balik ke login form otomatis
+    alert("Registrasi berhasil! Silakan login.");
     btnRegister.style.display = 'none';
     btnLogin.style.display = 'block';
     registerLink.textContent = 'Belum punya akun? Daftar disini';
@@ -259,99 +284,92 @@
     const password = passwordInput.value;
 
     if (!validateUsername(username)) {
-      alert('Username hanya boleh huruf dan angka, tanpa spasi atau karakter lain.');
+      alert("Username hanya boleh huruf dan angka tanpa spasi atau karakter khusus.");
       return;
     }
     if (!validatePassword(password)) {
-      alert('Password minimal 6 karakter.');
+      alert("Password minimal 6 karakter.");
       return;
     }
 
     const userRef = ref(db, 'users/' + username);
     const snapshot = await get(userRef);
     if (!snapshot.exists()) {
-      alert('Username belum terdaftar, silakan registrasi dulu.');
+      alert("Username tidak ditemukan.");
       return;
     }
-    if (snapshot.val().password !== password) {
-      alert('Password salah.');
+    const data = snapshot.val();
+    if (data.password !== password) {
+      alert("Password salah.");
       return;
     }
-
     loggedInUsername = username;
-    userDisplay.textContent = `Logged in as: ${username}`;
     loginSection.style.display = 'none';
     chatSection.style.display = 'block';
-    usernameInput.value = '';
-    passwordInput.value = '';
+    userDisplay.textContent = `Login sebagai: ${loggedInUsername}`;
     loadChatMessages();
   };
 
   btnLogout.onclick = () => {
     loggedInUsername = null;
     chatDiv.innerHTML = '';
+    messageInput.value = '';
     loginSection.style.display = 'block';
     chatSection.style.display = 'none';
+    usernameInput.value = '';
+    passwordInput.value = '';
   };
 
-  btnSend.onclick = () => {
-    const text = messageInput.value.trim();
-    if (!loggedInUsername) {
-      alert('Silakan login dulu!');
-      return;
-    }
-    if (text.length === 0) {
-      alert('Pesan tidak boleh kosong!');
-      return;
-    }
+  btnSend.onclick = async () => {
+    const msg = messageInput.value.trim();
+    if (!msg) return alert("Pesan tidak boleh kosong.");
 
-    const timestamp = formatTimestamp(new Date());
-    const chatRef = ref(db, 'chat-messages');
-    push(chatRef, {
+    const now = new Date();
+    const timestamp = now.toISOString();
+
+    const chatRef = ref(db, 'chats');
+    await push(chatRef, {
       username: loggedInUsername,
-      text: text,
-      timestamp: timestamp
+      message: msg,
+      timestamp: timestamp,
     });
     messageInput.value = '';
   };
 
-  function renderMessage(data) {
-    const message = data.val();
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('chat-message');
-
-    if (message.username === loggedInUsername) {
-      messageDiv.classList.add('right');
-    } else {
-      messageDiv.classList.add('left');
-    }
-
-    const userTimeDiv = document.createElement('div');
-    userTimeDiv.classList.add('username-time');
-    userTimeDiv.textContent = message.username;
-
-    const timeSpan = document.createElement('span');
-    timeSpan.classList.add('time');
-    timeSpan.textContent = message.timestamp;
-    userTimeDiv.appendChild(timeSpan);
-
-    const textDiv = document.createElement('div');
-    textDiv.classList.add('message-text');
-    textDiv.textContent = message.text;
-
-    messageDiv.appendChild(userTimeDiv);
-    messageDiv.appendChild(textDiv);
-
-    chatDiv.appendChild(messageDiv);
-    chatDiv.scrollTop = chatDiv.scrollHeight;
-  }
-
   function loadChatMessages() {
-    const chatRef = ref(db, 'chat-messages');
     chatDiv.innerHTML = '';
-    onChildAdded(chatRef, renderMessage);
+    const chatRef = ref(db, 'chats');
+    onChildAdded(chatRef, (snapshot) => {
+      const data = snapshot.val();
+      const messageEl = document.createElement('div');
+      messageEl.classList.add('chat-message');
+
+      if (data.username === loggedInUsername) {
+        messageEl.classList.add('right');
+      } else {
+        messageEl.classList.add('left');
+      }
+
+      const date = new Date(data.timestamp);
+      const formattedTime = formatTimestamp(date);
+
+      messageEl.innerHTML = `
+        <div class="username-time">
+          ${data.username} <span class="time">${formattedTime}</span>
+        </div>
+        <div class="message-text">${escapeHtml(data.message)}</div>
+      `;
+
+      chatDiv.appendChild(messageEl);
+      chatDiv.scrollTop = chatDiv.scrollHeight;
+    });
   }
 
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, function(m) {
+      return {'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[m];
+    });
+  }
 </script>
 
 </body>
