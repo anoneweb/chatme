@@ -46,18 +46,33 @@
       padding: 8px 12px;
       border-radius: 12px;
       clear: both;
-      display: block;
+      display: flex;
       font-size: 14px;
+      align-items: flex-start;
     }
     .chat-message.left {
       background-color: #d0f0c0;
       float: left;
       text-align: left;
+      flex-direction: row;
     }
     .chat-message.right {
       background-color: #a0c4ff;
       float: right;
       text-align: right;
+      flex-direction: row-reverse;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      margin-right: 8px;
+      flex-shrink: 0;
+      object-fit: cover;
+    }
+    .chat-message.right .avatar {
+      margin-left: 8px;
+      margin-right: 0;
     }
     .username-time {
       font-weight: bold;
@@ -71,8 +86,9 @@
       margin-left: 8px;
     }
     .message-text {
-      margin-left: 12px;
+      margin-left: 0;
       word-break: break-word;
+      max-width: 100%;
     }
     #login-section {
       text-align: center;
@@ -241,7 +257,22 @@
   const btnLogout = document.getElementById('btn-logout');
   const formTitle = document.getElementById('form-title');
 
+  // Daftar avatar default (pastikan link bisa diakses)
+  const avatars = [
+    'https://i.pravatar.cc/150?img=1',
+    'https://i.pravatar.cc/150?img=2',
+    'https://i.pravatar.cc/150?img=3',
+    'https://i.pravatar.cc/150?img=4',
+    'https://i.pravatar.cc/150?img=5',
+    'https://i.pravatar.cc/150?img=6',
+    'https://i.pravatar.cc/150?img=7',
+    'https://i.pravatar.cc/150?img=8',
+    'https://i.pravatar.cc/150?img=9',
+    'https://i.pravatar.cc/150?img=10'
+  ];
+
   let loggedInUsername = null;
+  let loggedInAvatar = null; // Simpan avatar user yang login
   let isRegisterMode = false;
 
   function validateUsername(username) {
@@ -255,6 +286,31 @@
   function formatTimestamp(date) {
     const pad = (n) => n.toString().padStart(2, '0');
     return `${pad(date.getHours())}:${pad(date.getMinutes())} ${pad(date.getDate())}${pad(date.getMonth()+1)}${date.getFullYear().toString().slice(-2)}`;
+  }
+
+  // Fungsi memilih avatar unik yang belum dipakai user lain
+  async function pickUniqueAvatar() {
+    const usersRef = ref(db, 'users');
+    const snapshot = await get(usersRef);
+    const usedAvatars = new Set();
+
+    if (snapshot.exists()) {
+      const users = snapshot.val();
+      for (const user in users) {
+        if (users[user].avatar) {
+          usedAvatars.add(users[user].avatar);
+        }
+      }
+    }
+
+    // Cari avatar yang belum dipakai
+    const available = avatars.filter(a => !usedAvatars.has(a));
+    if (available.length === 0) {
+      // Kalau habis, fallback random (boleh sama)
+      return avatars[Math.floor(Math.random() * avatars.length)];
+    }
+    // Return avatar random dari available
+    return available[Math.floor(Math.random() * available.length)];
   }
 
   registerLink.onclick = () => {
@@ -292,7 +348,10 @@
         alert("Username sudah terdaftar, coba username lain.");
         return;
       }
-      await set(userRef, { password: password });
+      // Pilih avatar unik
+      const avatar = await pickUniqueAvatar();
+
+      await set(userRef, { password: password, avatar: avatar });
       alert("Registrasi berhasil! Silakan login.");
       isRegisterMode = false;
       formTitle.textContent = 'Login';
@@ -313,6 +372,7 @@
         return;
       }
       loggedInUsername = username;
+      loggedInAvatar = data.avatar || avatars[0]; // Ambil avatar user
       loginSection.style.display = 'none';
       chatSection.style.display = 'block';
       userDisplay.textContent = `Login sebagai: ${loggedInUsername}`;
@@ -322,6 +382,7 @@
 
   btnLogout.onclick = () => {
     loggedInUsername = null;
+    loggedInAvatar = null;
     chatDiv.innerHTML = '';
     messageInput.value = '';
     loginSection.style.display = 'block';
@@ -342,6 +403,7 @@
       username: loggedInUsername,
       message: msg,
       timestamp: timestamp,
+      avatar: loggedInAvatar // Kirim avatar juga supaya bisa tampilin avatar realtime tanpa harus fetch user tiap pesan
     });
     messageInput.value = '';
   };
@@ -363,11 +425,16 @@
       const date = new Date(data.timestamp);
       const formattedTime = formatTimestamp(date);
 
+      const avatarUrl = data.avatar || avatars[0]; // fallback avatar
+
       messageEl.innerHTML = `
-        <div class="username-time">
-          ${data.username} <span class="time">${formattedTime}</span>
+        <img src="${avatarUrl}" alt="avatar" class="avatar" loading="lazy" />
+        <div>
+          <div class="username-time">
+            ${data.username} <span class="time">${formattedTime}</span>
+          </div>
+          <div class="message-text">${escapeHtml(data.message)}</div>
         </div>
-        <div class="message-text">${escapeHtml(data.message)}</div>
       `;
 
       chatDiv.appendChild(messageEl);
