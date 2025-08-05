@@ -2,10 +2,10 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Chat Web Firebase dengan Username</title>
+  <title>Chat dengan Register & Login</title>
   <style>
-    #chat { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; }
     body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
+    #chat { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-top: 20px; }
     #message { width: 70%; padding: 10px; }
     button { padding: 10px; }
     .message {
@@ -16,20 +16,50 @@
       margin-right: 5px;
       color: #007bff;
     }
+    #login-register, #chat-section {
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    #login-register {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    input {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
   </style>
 </head>
 <body>
-  <h1>Chat Sederhana dengan Username</h1>
-  <div id="chat"></div>
-  <input type="text" id="message" placeholder="Ketik pesan..." />
-  <button onclick="sendMessage()">Kirim</button>
+  <h1>Chat Online dengan Register & Login</h1>
 
-  <!-- Firebase SDK via script tags (compatibility mode) -->
+  <!-- Login/Register Form -->
+  <div id="login-register">
+    <h3 id="form-title">Login</h3>
+    <input type="text" id="username-input" placeholder="Username" />
+    <input type="password" id="password-input" placeholder="Password" />
+    <button id="action-btn">Login</button>
+    <p id="toggle-text">Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a></p>
+    <p id="status" style="color:red;"></p>
+  </div>
+
+  <!-- Chat Section, hidden awalnya -->
+  <div id="chat-section" style="display:none;">
+    <h3>Halo, <span id="user-name"></span>! <button id="logout-btn">Logout</button></h3>
+    <div id="chat"></div>
+    <input type="text" id="message" placeholder="Ketik pesan..." />
+    <button id="send-btn">Kirim</button>
+  </div>
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <script>
-    // Firebase config (ganti dengan milik kamu)
+    // Konfigurasi Firebase (ganti dengan milik kamu)
     const firebaseConfig = {
       apiKey: "AIzaSyAj1lv5LJcOBfce16dPOe_2T5NlnhgV7LU",
       authDomain: "chat-minimalis.firebaseapp.com",
@@ -44,36 +74,184 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const chatRef = db.ref("chat-messages");
 
-    const chat = document.getElementById("chat");
-    const messageInput = document.getElementById("message");
+    // Elemen DOM
+    const loginRegisterDiv = document.getElementById('login-register');
+    const chatSection = document.getElementById('chat-section');
+    const formTitle = document.getElementById('form-title');
+    const usernameInput = document.getElementById('username-input');
+    const passwordInput = document.getElementById('password-input');
+    const actionBtn = document.getElementById('action-btn');
+    const toggleText = document.getElementById('toggle-text');
+    const toggleLink = document.getElementById('toggle-link');
+    const statusText = document.getElementById('status');
+    const userNameDisplay = document.getElementById('user-name');
+    const chatDiv = document.getElementById('chat');
+    const messageInput = document.getElementById('message');
+    const sendBtn = document.getElementById('send-btn');
+    const logoutBtn = document.getElementById('logout-btn');
 
-    // Minta username ke user
-    let username = "";
-    while (!username) {
-      username = prompt("Masukkan username kamu:");
-      if (!username) alert("Username wajib diisi!");
+    let isLoginMode = true;
+    let currentUser = null;
+
+    // Toggle antara Login dan Register
+    toggleLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      isLoginMode = !isLoginMode;
+      formTitle.textContent = isLoginMode ? 'Login' : 'Register';
+      actionBtn.textContent = isLoginMode ? 'Login' : 'Daftar';
+      toggleText.innerHTML = isLoginMode
+        ? 'Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a>'
+        : 'Sudah punya akun? <a href="#" id="toggle-link">Login di sini</a>';
+      statusText.textContent = '';
+      usernameInput.value = '';
+      passwordInput.value = '';
+      // Reattach event listener to new link
+      const newToggleLink = toggleText.querySelector('a');
+      newToggleLink.addEventListener('click', toggleLinkClick);
+    });
+
+    // To handle re-adding listener (for toggle links inside toggleText)
+    function toggleLinkClick(e) {
+      e.preventDefault();
+      isLoginMode = !isLoginMode;
+      formTitle.textContent = isLoginMode ? 'Login' : 'Register';
+      actionBtn.textContent = isLoginMode ? 'Login' : 'Daftar';
+      toggleText.innerHTML = isLoginMode
+        ? 'Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a>'
+        : 'Sudah punya akun? <a href="#" id="toggle-link">Login di sini</a>';
+      statusText.textContent = '';
+      usernameInput.value = '';
+      passwordInput.value = '';
+      const newToggleLink = toggleText.querySelector('a');
+      newToggleLink.addEventListener('click', toggleLinkClick);
     }
 
-    // Listen pesan baru realtime
-    chatRef.on("child_added", (snapshot) => {
-      const data = snapshot.val();
-      const div = document.createElement("div");
-      div.classList.add("message");
-      div.innerHTML = `<span class="username">${data.username}:</span> ${data.message}`;
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
+    // Init toggle link listener
+    toggleLink.addEventListener('click', toggleLinkClick);
+
+    // Cek session login di localStorage
+    function checkSession() {
+      const savedUser = localStorage.getItem('chatUser');
+      if (savedUser) {
+        currentUser = savedUser;
+        showChat();
+      }
+    }
+
+    // Tampilkan halaman chat
+    function showChat() {
+      loginRegisterDiv.style.display = 'none';
+      chatSection.style.display = 'block';
+      userNameDisplay.textContent = currentUser;
+      listenChatMessages();
+    }
+
+    // Tampilkan halaman login/register
+    function showLoginRegister() {
+      loginRegisterDiv.style.display = 'block';
+      chatSection.style.display = 'none';
+      usernameInput.value = '';
+      passwordInput.value = '';
+      statusText.textContent = '';
+    }
+
+    // Event action (login or register)
+    actionBtn.addEventListener('click', () => {
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (!username || !password) {
+        statusText.textContent = 'Username dan password wajib diisi!';
+        return;
+      }
+
+      if (isLoginMode) {
+        // Login
+        db.ref('users/' + username).get().then((snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            if (data.password === password) {
+              currentUser = username;
+              localStorage.setItem('chatUser', currentUser);
+              showChat();
+            } else {
+              statusText.textContent = 'Password salah!';
+            }
+          } else {
+            statusText.textContent = 'Username tidak ditemukan!';
+          }
+        }).catch(() => {
+          statusText.textContent = 'Gagal terhubung ke server!';
+        });
+      } else {
+        // Register
+        db.ref('users/' + username).get().then((snapshot) => {
+          if (snapshot.exists()) {
+            statusText.textContent = 'Username sudah dipakai, coba yang lain.';
+          } else {
+            // Simpan user baru
+            db.ref('users/' + username).set({ password: password })
+              .then(() => {
+                statusText.style.color = 'green';
+                statusText.textContent = 'Pendaftaran berhasil! Silakan login.';
+                isLoginMode = true;
+                formTitle.textContent = 'Login';
+                actionBtn.textContent = 'Login';
+                toggleText.innerHTML = 'Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a>';
+                usernameInput.value = '';
+                passwordInput.value = '';
+                // Reattach event listener to new link
+                const newToggleLink = toggleText.querySelector('a');
+                newToggleLink.addEventListener('click', toggleLinkClick);
+              })
+              .catch(() => {
+                statusText.textContent = 'Gagal mendaftar, coba lagi.';
+              });
+          }
+        }).catch(() => {
+          statusText.textContent = 'Gagal terhubung ke server!';
+        });
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('chatUser');
+      currentUser = null;
+      chatDiv.innerHTML = '';
+      showLoginRegister();
     });
 
     // Fungsi kirim pesan
-    function sendMessage() {
+    sendBtn.addEventListener('click', () => {
       const msg = messageInput.value.trim();
-      if (msg) {
-        chatRef.push({ username, message: msg });
-        messageInput.value = "";
-      }
+      if (!msg) return;
+      if (!currentUser) return alert("Harap login terlebih dahulu.");
+
+      db.ref('chat-messages').push({
+        username: currentUser,
+        message: msg,
+        timestamp: Date.now()
+      });
+      messageInput.value = '';
+    });
+
+    // Listen pesan realtime dan tampilkan
+    function listenChatMessages() {
+      db.ref('chat-messages').off(); // supaya gak dobel listen saat logout-login
+
+      db.ref('chat-messages').on('child_added', (snapshot) => {
+        const data = snapshot.val();
+        const div = document.createElement('div');
+        div.classList.add('message');
+        div.innerHTML = `<span class="username">${data.username}:</span> ${data.message}`;
+        chatDiv.appendChild(div);
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+      });
     }
+
+    // Mulai cek session saat load
+    checkSession();
   </script>
 </body>
 </html>
