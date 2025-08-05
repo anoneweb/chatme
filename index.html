@@ -2,45 +2,179 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Chat dengan Register & Login</title>
+  <title>PRIVATE ROOM</title>
   <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 20px auto; }
-    #chat { border: 1px solid #ccc; height: 300px; overflow-y: scroll; padding: 10px; margin-top: 20px; }
-    #message { width: 70%; padding: 10px; }
-    button { padding: 10px; }
-    .message {
-      margin-bottom: 8px;
+    /* Background gradasi baby blue ke hijau muda */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 600px;
+      margin: 20px auto;
+      background: linear-gradient(135deg, #a3cef1, #b7e4c7);
+      color: #1a1a1a;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    .username {
-      font-weight: bold;
-      margin-right: 5px;
-      color: #007bff;
+
+    h1 {
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #1f6f8b; /* baby blue tone */
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      user-select: none;
     }
-    #login-register, #chat-section {
-      border: 1px solid #ccc;
+
+    #chat {
+      border: 1px solid #8ecae6;
+      height: 300px;
+      overflow-y: scroll;
       padding: 15px;
-      border-radius: 5px;
+      background: rgba(255,255,255,0.85);
+      border-radius: 10px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+      margin-top: 20px;
     }
+
+    #message {
+      width: 70%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #81b29a;
+      font-size: 1rem;
+      outline-color: #52b788;
+      transition: outline-color 0.3s ease;
+    }
+
+    #message:focus {
+      outline-color: #40916c;
+    }
+
+    button {
+      padding: 12px 18px;
+      background: #52b788;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin-left: 10px;
+    }
+
+    button:hover {
+      background: #40916c;
+    }
+
+    .message {
+      margin-bottom: 10px;
+      font-size: 1rem;
+    }
+
+    .username {
+      font-weight: 700;
+      margin-right: 6px;
+      color: #1f6f8b;
+      user-select: none;
+    }
+
+    #login-register, #chat-section {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
     #login-register {
       max-width: 400px;
       margin: 0 auto;
     }
+
     input {
-      padding: 8px;
-      margin: 5px 0;
+      padding: 12px;
+      margin: 8px 0;
       width: 100%;
       box-sizing: border-box;
+      border-radius: 8px;
+      border: 1px solid #8ecae6;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #52b788;
+      outline: none;
+    }
+
+    #form-title {
+      text-align: center;
+      margin-bottom: 18px;
+      font-weight: 700;
+      color: #1f6f8b;
+      user-select: none;
+    }
+
+    #toggle-text {
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 12px;
+      color: #333;
+      user-select: none;
+    }
+
+    #toggle-text a {
+      color: #40916c;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    #toggle-text a:hover {
+      color: #2d6a4f;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    #chat-section h3 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #1f6f8b;
+      user-select: none;
+    }
+
+    #logout-btn {
+      background: #d90429;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-left: 15px;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
+
+    #logout-btn:hover {
+      background: #9b0217;
     }
   </style>
 </head>
 <body>
-  <h1>Chat Online dengan Register & Login</h1>
+  <h1>PRIVATE ROOM</h1>
 
   <!-- Login/Register Form -->
   <div id="login-register">
     <h3 id="form-title">Login</h3>
-    <input type="text" id="username-input" placeholder="Username" />
-    <input type="password" id="password-input" placeholder="Password" />
+    <input type="text" id="username-input" placeholder="Username" autocomplete="off" />
+    <input type="password" id="password-input" placeholder="Password" autocomplete="off" />
     <button id="action-btn">Login</button>
     <p id="toggle-text">Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a></p>
     <p id="status" style="color:red;"></p>
@@ -50,7 +184,7 @@
   <div id="chat-section" style="display:none;">
     <h3>Halo, <span id="user-name"></span>! <button id="logout-btn">Logout</button></h3>
     <div id="chat"></div>
-    <input type="text" id="message" placeholder="Ketik pesan..." />
+    <input type="text" id="message" placeholder="Ketik pesan..." autocomplete="off" />
     <button id="send-btn">Kirim</button>
   </div>
 
@@ -127,131 +261,174 @@
       newToggleLink.addEventListener('click', toggleLinkClick);
     }
 
-    // Init toggle link listener
+    // Initial listener for toggle link
     toggleLink.addEventListener('click', toggleLinkClick);
 
-    // Cek session login di localStorage
-    function checkSession() {
-      const savedUser = localStorage.getItem('chatUser');
-      if (savedUser) {
-        currentUser = savedUser;
-        showChat();
+    // Fungsi register user baru
+    async function registerUser(username, password) {
+      try {
+        const userRef = db.ref('users/' + username);
+        const snapshot = await userRef.get();
+        if (snapshot.exists()) {
+          statusText.textContent = 'Username sudah dipakai, coba yang lain.';
+          return false;
+        } else {
+          // Simpan username dan password (password disimpan plain text, sebaiknya pakai hashing untuk produksi)
+          await userRef.set({ password });
+          return true;
+        }
+      } catch (error) {
+        statusText.textContent = 'Error saat register: ' + error.message;
+        return false;
       }
     }
 
-    // Tampilkan halaman chat
-    function showChat() {
-      loginRegisterDiv.style.display = 'none';
-      chatSection.style.display = 'block';
-      userNameDisplay.textContent = currentUser;
-      listenChatMessages();
+    // Fungsi login user
+    async function loginUser(username, password) {
+      try {
+        const userRef = db.ref('users/' + username);
+        const snapshot = await userRef.get();
+        if (!snapshot.exists()) {
+          statusText.textContent = 'Username tidak ditemukan.';
+          return false;
+        }
+        const userData = snapshot.val();
+        if (userData.password === password) {
+          return true;
+        } else {
+          statusText.textContent = 'Password salah.';
+          return false;
+        }
+      } catch (error) {
+        statusText.textContent = 'Error saat login: ' + error.message;
+        return false;
+      }
     }
 
-    // Tampilkan halaman login/register
+    // Simpan sesi login di localStorage
+    function saveSession(username) {
+      localStorage.setItem('chatUser', username);
+    }
+
+    // Hapus sesi login
+    function clearSession() {
+      localStorage.removeItem('chatUser');
+    }
+
+    // Cek sesi login saat load halaman
+    function checkSession() {
+      const user = localStorage.getItem('chatUser');
+      if (user) {
+        currentUser = user;
+        showChatSection();
+      } else {
+        showLoginRegister();
+      }
+    }
+
+    // Tampilkan form login/register
     function showLoginRegister() {
       loginRegisterDiv.style.display = 'block';
       chatSection.style.display = 'none';
       usernameInput.value = '';
       passwordInput.value = '';
       statusText.textContent = '';
+      currentUser = null;
     }
 
-    // Event action (login or register)
-    actionBtn.addEventListener('click', () => {
+    // Tampilkan chat section
+    function showChatSection() {
+      loginRegisterDiv.style.display = 'none';
+      chatSection.style.display = 'block';
+      userNameDisplay.textContent = currentUser;
+      statusText.textContent = '';
+      listenMessages();
+    }
+
+    // Kirim pesan
+    function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+      const msgObj = {
+        username: currentUser,
+        message,
+        timestamp: Date.now()
+      };
+      db.ref('chat-messages').push(msgObj);
+      messageInput.value = '';
+    }
+
+    // Listen pesan realtime dan tampilkan
+    function listenMessages() {
+      db.ref('chat-messages').on('value', (snapshot) => {
+        chatDiv.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+          const messagesArr = Object.values(data);
+          messagesArr.sort((a,b) => a.timestamp - b.timestamp);
+          messagesArr.forEach(msg => {
+            const div = document.createElement('div');
+            div.classList.add('message');
+            div.innerHTML = `<span class="username">${msg.username}:</span> ${msg.message}`;
+            chatDiv.appendChild(div);
+          });
+          chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+      });
+    }
+
+    // Event tombol kirim pesan
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Event tombol login/register
+    actionBtn.addEventListener('click', async () => {
       const username = usernameInput.value.trim();
       const password = passwordInput.value.trim();
       if (!username || !password) {
-        statusText.textContent = 'Username dan password wajib diisi!';
+        statusText.textContent = 'Username dan password wajib diisi.';
         return;
       }
-
+      statusText.textContent = '';
       if (isLoginMode) {
         // Login
-        db.ref('users/' + username).get().then((snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            if (data.password === password) {
-              currentUser = username;
-              localStorage.setItem('chatUser', currentUser);
-              showChat();
-            } else {
-              statusText.textContent = 'Password salah!';
-            }
-          } else {
-            statusText.textContent = 'Username tidak ditemukan!';
-          }
-        }).catch(() => {
-          statusText.textContent = 'Gagal terhubung ke server!';
-        });
+        const success = await loginUser(username, password);
+        if (success) {
+          currentUser = username;
+          saveSession(username);
+          showChatSection();
+        }
       } else {
         // Register
-        db.ref('users/' + username).get().then((snapshot) => {
-          if (snapshot.exists()) {
-            statusText.textContent = 'Username sudah dipakai, coba yang lain.';
-          } else {
-            // Simpan user baru
-            db.ref('users/' + username).set({ password: password })
-              .then(() => {
-                statusText.style.color = 'green';
-                statusText.textContent = 'Pendaftaran berhasil! Silakan login.';
-                isLoginMode = true;
-                formTitle.textContent = 'Login';
-                actionBtn.textContent = 'Login';
-                toggleText.innerHTML = 'Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a>';
-                usernameInput.value = '';
-                passwordInput.value = '';
-                // Reattach event listener to new link
-                const newToggleLink = toggleText.querySelector('a');
-                newToggleLink.addEventListener('click', toggleLinkClick);
-              })
-              .catch(() => {
-                statusText.textContent = 'Gagal mendaftar, coba lagi.';
-              });
-          }
-        }).catch(() => {
-          statusText.textContent = 'Gagal terhubung ke server!';
-        });
+        const success = await registerUser(username, password);
+        if (success) {
+          statusText.style.color = 'green';
+          statusText.textContent = 'Registrasi berhasil! Silakan login.';
+          isLoginMode = true;
+          formTitle.textContent = 'Login';
+          actionBtn.textContent = 'Login';
+          toggleText.innerHTML = 'Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a>';
+          usernameInput.value = '';
+          passwordInput.value = '';
+          // re-attach listener
+          const newToggleLink = toggleText.querySelector('a');
+          newToggleLink.addEventListener('click', toggleLinkClick);
+          statusText.style.color = 'red';
+        }
       }
     });
 
     // Logout
     logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('chatUser');
-      currentUser = null;
-      chatDiv.innerHTML = '';
+      clearSession();
       showLoginRegister();
     });
 
-    // Fungsi kirim pesan
-    sendBtn.addEventListener('click', () => {
-      const msg = messageInput.value.trim();
-      if (!msg) return;
-      if (!currentUser) return alert("Harap login terlebih dahulu.");
-
-      db.ref('chat-messages').push({
-        username: currentUser,
-        message: msg,
-        timestamp: Date.now()
-      });
-      messageInput.value = '';
-    });
-
-    // Listen pesan realtime dan tampilkan
-    function listenChatMessages() {
-      db.ref('chat-messages').off(); // supaya gak dobel listen saat logout-login
-
-      db.ref('chat-messages').on('child_added', (snapshot) => {
-        const data = snapshot.val();
-        const div = document.createElement('div');
-        div.classList.add('message');
-        div.innerHTML = `<span class="username">${data.username}:</span> ${data.message}`;
-        chatDiv.appendChild(div);
-        chatDiv.scrollTop = chatDiv.scrollHeight;
-      });
-    }
-
-    // Mulai cek session saat load
+    // Mulai cek sesi login saat halaman load
     checkSession();
+
   </script>
 </body>
 </html>
