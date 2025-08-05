@@ -29,7 +29,7 @@
       overflow-y: scroll;
       padding: 10px;
       background: #f9f9f9;
-      margin-bottom: 60px; /* space bawah utk input & tombol kirim */
+      margin-bottom: 60px;
       position: relative;
     }
     .chat-message {
@@ -43,12 +43,12 @@
       font-size: 14px;
     }
     .chat-message.left {
-      background-color: #d0f0c0; /* hijau muda */
+      background-color: #d0f0c0;
       float: left;
       text-align: left;
     }
     .chat-message.right {
-      background-color: #a0c4ff; /* baby blue */
+      background-color: #a0c4ff;
       float: right;
       text-align: right;
     }
@@ -66,7 +66,6 @@
     .message-text {
       margin-left: 12px;
     }
-    /* Input login/register di tengah & max lebar 300px */
     #login-section {
       text-align: center;
     }
@@ -107,10 +106,6 @@
       display: block;
       user-select: none;
     }
-    #btn-register {
-      display: none;
-    }
-    /* Tombol logout */
     #btn-logout {
       background: #ef4444;
       position: absolute;
@@ -128,7 +123,6 @@
     #btn-logout:hover {
       background: #dc2626;
     }
-    /* Area chat input & tombol kirim */
     #chat-section {
       position: relative;
     }
@@ -172,12 +166,11 @@
 <h1>PRIVATE ROOM</h1>
 
 <div id="login-section">
-  <h2>Login</h2>
+  <h2 id="form-title">Login</h2>
   <input type="text" id="username" placeholder="Username (huruf & angka saja)" />
   <input type="password" id="password" placeholder="Password (minimal 6 karakter)" />
-  <button id="btn-login">Login</button>
+  <button id="btn-action">Login</button>
   <span id="register-link">Belum punya akun? Daftar disini</span>
-  <button id="btn-register">Register</button>
 </div>
 
 <div id="chat-section" style="display:none;">
@@ -210,16 +203,17 @@
   const chatSection = document.getElementById('chat-section');
   const usernameInput = document.getElementById('username');
   const passwordInput = document.getElementById('password');
-  const btnRegister = document.getElementById('btn-register');
-  const btnLogin = document.getElementById('btn-login');
+  const btnAction = document.getElementById('btn-action');
   const registerLink = document.getElementById('register-link');
   const userDisplay = document.getElementById('user-display');
   const chatDiv = document.getElementById('chat');
   const messageInput = document.getElementById('message');
   const btnSend = document.getElementById('btn-send');
   const btnLogout = document.getElementById('btn-logout');
+  const formTitle = document.getElementById('form-title');
 
   let loggedInUsername = null;
+  let isRegisterMode = false;
 
   function validateUsername(username) {
     return /^[a-zA-Z0-9]+$/.test(username);
@@ -235,22 +229,21 @@
   }
 
   registerLink.onclick = () => {
-    if (btnRegister.style.display === 'none') {
-      btnRegister.style.display = 'block';
-      btnLogin.style.display = 'none';
+    isRegisterMode = !isRegisterMode;
+    if (isRegisterMode) {
+      formTitle.textContent = 'Register';
+      btnAction.textContent = 'Register';
       registerLink.textContent = 'Sudah punya akun? Login disini';
-      loginSection.querySelector('h2').textContent = 'Register';
     } else {
-      btnRegister.style.display = 'none';
-      btnLogin.style.display = 'block';
+      formTitle.textContent = 'Login';
+      btnAction.textContent = 'Login';
       registerLink.textContent = 'Belum punya akun? Daftar disini';
-      loginSection.querySelector('h2').textContent = 'Login';
     }
     usernameInput.value = '';
     passwordInput.value = '';
   };
 
-  btnRegister.onclick = async () => {
+  btnAction.onclick = async () => {
     const username = usernameInput.value.trim();
     const password = passwordInput.value;
 
@@ -263,51 +256,42 @@
       return;
     }
 
-    const userRef = ref(db, 'users/' + username);
-    const snapshot = await get(userRef);
-    if (snapshot.exists()) {
-      alert("Username sudah terdaftar, coba username lain.");
-      return;
+    if (isRegisterMode) {
+      // Register user
+      const userRef = ref(db, 'users/' + username);
+      const snapshot = await get(userRef);
+      if (snapshot.exists()) {
+        alert("Username sudah terdaftar, coba username lain.");
+        return;
+      }
+      await set(userRef, { password: password });
+      alert("Registrasi berhasil! Silakan login.");
+      // Kembali ke mode login
+      isRegisterMode = false;
+      formTitle.textContent = 'Login';
+      btnAction.textContent = 'Login';
+      registerLink.textContent = 'Belum punya akun? Daftar disini';
+      usernameInput.value = '';
+      passwordInput.value = '';
+    } else {
+      // Login user
+      const userRef = ref(db, 'users/' + username);
+      const snapshot = await get(userRef);
+      if (!snapshot.exists()) {
+        alert("Username tidak ditemukan.");
+        return;
+      }
+      const data = snapshot.val();
+      if (data.password !== password) {
+        alert("Password salah.");
+        return;
+      }
+      loggedInUsername = username;
+      loginSection.style.display = 'none';
+      chatSection.style.display = 'block';
+      userDisplay.textContent = `Login sebagai: ${loggedInUsername}`;
+      loadChatMessages();
     }
-    await set(userRef, { password: password });
-    alert("Registrasi berhasil! Silakan login.");
-    btnRegister.style.display = 'none';
-    btnLogin.style.display = 'block';
-    registerLink.textContent = 'Belum punya akun? Daftar disini';
-    loginSection.querySelector('h2').textContent = 'Login';
-    usernameInput.value = '';
-    passwordInput.value = '';
-  };
-
-  btnLogin.onclick = async () => {
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value;
-
-    if (!validateUsername(username)) {
-      alert("Username hanya boleh huruf dan angka tanpa spasi atau karakter khusus.");
-      return;
-    }
-    if (!validatePassword(password)) {
-      alert("Password minimal 6 karakter.");
-      return;
-    }
-
-    const userRef = ref(db, 'users/' + username);
-    const snapshot = await get(userRef);
-    if (!snapshot.exists()) {
-      alert("Username tidak ditemukan.");
-      return;
-    }
-    const data = snapshot.val();
-    if (data.password !== password) {
-      alert("Password salah.");
-      return;
-    }
-    loggedInUsername = username;
-    loginSection.style.display = 'none';
-    chatSection.style.display = 'block';
-    userDisplay.textContent = `Login sebagai: ${loggedInUsername}`;
-    loadChatMessages();
   };
 
   btnLogout.onclick = () => {
