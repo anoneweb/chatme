@@ -2,437 +2,296 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>PRIVATE ROOM</title>
+  <title>PRIVATE ROOM - Chat Online</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #a3cef1, #b7e4c7);
-      margin: 0; padding: 0;
-      display: flex; flex-direction: column; align-items: center;
-      min-height: 100vh;
+      font-family: sans-serif;
+      margin: 20px;
+      background: linear-gradient(135deg, #a0c4ff, #d0f0c0);
+      color: #333;
     }
     h1 {
-      margin-top: 20px;
-      color: #114b5f;
-      font-weight: 700;
-    }
-    #login-register {
-      background: white;
-      padding: 20px 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-      width: 320px;
       text-align: center;
+      margin-bottom: 20px;
     }
-    #login-register h2 {
-      margin-top: 0;
-      color: #114b5f;
-    }
-    #login-register input {
-      width: 100%;
-      padding: 8px 10px;
-      margin: 8px 0;
-      border: 1.8px solid #66a5ad;
-      border-radius: 6px;
-      font-size: 15px;
-    }
-    #login-register button {
-      width: 100%;
-      padding: 10px;
-      background: #114b5f;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background 0.3s ease;
-    }
-    #login-register button:hover {
-      background: #0d3b47;
-    }
-    #toggle-text {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #114b5f;
-    }
-    #toggle-text a {
-      color: #118ab2;
-      cursor: pointer;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    #toggle-text a:hover {
-      text-decoration: underline;
-    }
-    #status-text {
-      margin-top: 10px;
-      height: 18px;
-      font-weight: 600;
-      color: red;
-    }
-    #chat-section {
-      display: none;
-      width: 400px;
+    #login-section, #chat-section {
+      max-width: 500px;
+      margin: 0 auto;
       background: white;
+      padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      height: 500px;
-    }
-    #chat-header {
-      background: #118ab2;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 12px 12px 0 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 700;
+      box-shadow: 0 0 8px rgba(0,0,0,0.2);
     }
     #chat {
-      flex: 1;
-      padding: 15px 20px;
-      overflow-y: auto;
-      background: #d1e8e2;
-      border-radius: 0 0 12px 12px;
-    }
-    .message {
-      margin-bottom: 14px;
-      background: #fff;
-      border-radius: 10px;
-      padding: 8px 12px;
-      box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
-      max-width: 90%;
-    }
-    .message .msg-header {
-      font-weight: 700;
-      font-size: 14px;
-      color: #114b5f;
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 4px;
-    }
-    .message .msg-content {
-      padding-left: 8px;
-      font-size: 15px;
-      color: #333;
-      white-space: pre-wrap;
-    }
-    #message-input-section {
-      display: flex;
-      border-top: 1.5px solid #ccc;
-      padding: 10px 15px;
-      background: #f7f9f9;
-      border-radius: 0 0 12px 12px;
-    }
-    #message-input {
-      flex: 1;
+      border: 1px solid #ccc;
+      height: 300px;
+      overflow-y: scroll;
       padding: 10px;
-      font-size: 15px;
-      border: 1.8px solid #66a5ad;
-      border-radius: 8px;
-      margin-right: 10px;
+      background: #f9f9f9;
+      margin-bottom: 10px;
     }
-    #send-btn {
-      background: #114b5f;
+    .chat-message {
+      max-width: 60%;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      clear: both;
+      display: block;
+      word-wrap: break-word;
+      font-size: 14px;
+    }
+    .chat-message.left {
+      background-color: #d0f0c0; /* hijau muda */
+      float: left;
+      text-align: left;
+    }
+    .chat-message.right {
+      background-color: #a0c4ff; /* baby blue */
+      float: right;
+      text-align: right;
+    }
+    .username-time {
+      font-weight: bold;
+      font-size: 12px;
+      margin-bottom: 2px;
+    }
+    .time {
+      font-weight: normal;
+      font-size: 11px;
+      color: #444;
+      margin-left: 8px;
+    }
+    .message-text {
+      margin-left: 12px;
+    }
+    input[type=text], input[type=password] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      padding: 10px 16px;
+      font-size: 14px;
+      background-color: #60a5fa;
       border: none;
+      border-radius: 6px;
       color: white;
-      padding: 0 18px;
-      border-radius: 8px;
-      font-weight: 600;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
-    #send-btn:hover {
-      background: #0d3b47;
+    button:hover {
+      background-color: #3b82f6;
+    }
+    #user-display {
+      margin-bottom: 10px;
+      font-weight: bold;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <h1>PRIVATE ROOM</h1>
 
-  <div id="login-register">
-    <h2 id="form-title">Login</h2>
-    <input type="text" id="username" placeholder="Username (alfanumerik)" autocomplete="off" />
-    <input type="password" id="password" placeholder="Password (min 6 karakter)" autocomplete="off" />
-    <button id="action-btn">Login</button>
-    <div id="toggle-text">Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a></div>
-    <div id="status-text"></div>
-  </div>
+<h1>PRIVATE ROOM</h1>
 
-  <div id="chat-section">
-    <div id="chat-header">
-      <div>Logged in sebagai: <span id="user-name-display"></span></div>
-      <button id="logout-btn">Logout</button>
-    </div>
-    <div id="chat"></div>
-    <div id="message-input-section">
-      <input type="text" id="message-input" placeholder="Ketik pesan..." autocomplete="off" />
-      <button id="send-btn">Kirim</button>
-    </div>
-  </div>
+<div id="login-section">
+  <h2>Register / Login</h2>
+  <input type="text" id="username" placeholder="Username (huruf & angka saja)" />
+  <input type="password" id="password" placeholder="Password (minimal 6 karakter)" />
+  <button id="btn-register">Register</button>
+  <button id="btn-login">Login</button>
+</div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import { getDatabase, ref, get, set, push, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+<div id="chat-section" style="display:none;">
+  <div id="user-display"></div>
+  <div id="chat"></div>
+  <input type="text" id="message" placeholder="Ketik pesan..." />
+  <button id="btn-send">Kirim</button>
+  <button id="btn-logout" style="background:#ef4444; margin-top:10px;">Logout</button>
+</div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAj1lv5LJcOBfce16dPOe_2T5NlnhgV7LU",
-      authDomain: "chat-minimalis.firebaseapp.com",
-      databaseURL: "https://chat-minimalis-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "chat-minimalis",
-      storageBucket: "chat-minimalis.appspot.com",
-      messagingSenderId: "242850342589",
-      appId: "1:242850342589:web:202f8828d047097c0eb9d4",
-      measurementId: "G-K7018W73KJ"
-    };
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import { getDatabase, ref, get, set, push, onChildAdded, remove } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+  // Konfigurasi Firebase (ganti sesuai milikmu)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAj1lv5LJcOBfce16dPOe_2T5NlnhgV7LU",
+    authDomain: "chat-minimalis.firebaseapp.com",
+    databaseURL: "https://chat-minimalis-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "chat-minimalis",
+    storageBucket: "chat-minimalis.firebasestorage.app",
+    messagingSenderId: "242850342589",
+    appId: "1:242850342589:web:202f8828d047097c0eb9d4",
+    measurementId: "G-K7018W73KJ"
+  };
 
-    // Elements
-    const loginRegisterDiv = document.getElementById('login-register');
-    const chatSection = document.getElementById('chat-section');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-    const actionBtn = document.getElementById('action-btn');
-    const toggleText = document.getElementById('toggle-text');
-    const toggleLink = document.getElementById('toggle-link');
-    const statusText = document.getElementById('status-text');
-    const chatDiv = document.getElementById('chat');
-    const userNameDisplay = document.getElementById('user-name-display');
-    const logoutBtn = document.getElementById('logout-btn');
-    const messageInput = document.getElementById('message-input');
-    const sendBtn = document.getElementById('send-btn');
+  // Init Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase();
 
-    let isLoginMode = true;
-    let currentUser = null;
+  // Elemen DOM
+  const loginSection = document.getElementById('login-section');
+  const chatSection = document.getElementById('chat-section');
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  const btnRegister = document.getElementById('btn-register');
+  const btnLogin = document.getElementById('btn-login');
+  const userDisplay = document.getElementById('user-display');
+  const chatDiv = document.getElementById('chat');
+  const messageInput = document.getElementById('message');
+  const btnSend = document.getElementById('btn-send');
+  const btnLogout = document.getElementById('btn-logout');
 
-    // Utility: format timestamp ke "HH:MM DDMMYY"
-    function formatTimestamp(ts) {
-      const d = new Date(ts);
-      const pad = n => (n < 10 ? '0' + n : n);
-      const hours = pad(d.getHours());
-      const minutes = pad(d.getMinutes());
-      const day = pad(d.getDate());
-      const month = pad(d.getMonth() + 1);
-      const year = String(d.getFullYear()).slice(2);
-      return `${hours}:${minutes} ${day}${month}${year}`;
+  let loggedInUsername = null;
+
+  // Validasi username: huruf + angka, tanpa spasi, tanpa karakter aneh
+  function validateUsername(username) {
+    return /^[a-zA-Z0-9]+$/.test(username);
+  }
+
+  // Validasi password minimal 6 karakter
+  function validatePassword(password) {
+    return password.length >= 6;
+  }
+
+  // Format timestamp "HH:mm DDMMYY"
+  function formatTimestamp(date) {
+    const pad = (n) => n.toString().padStart(2, '0');
+    return `${pad(date.getHours())}:${pad(date.getMinutes())} ${pad(date.getDate())}${pad(date.getMonth()+1)}${date.getFullYear().toString().slice(-2)}`;
+  }
+
+  // Register user
+  btnRegister.onclick = async () => {
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!validateUsername(username)) {
+      alert('Username hanya boleh huruf dan angka, tanpa spasi atau karakter lain.');
+      return;
+    }
+    if (!validatePassword(password)) {
+      alert('Password minimal 6 karakter.');
+      return;
     }
 
-    // Validasi input username dan password
-    function validateInput(username, password) {
-      const usernameRegex = /^[a-zA-Z0-9]+$/;
-      if (!username || !password) {
-        statusText.textContent = 'Username dan password wajib diisi.';
-        return false;
-      }
-      if (!usernameRegex.test(username)) {
-        statusText.textContent = 'Username hanya boleh huruf dan angka tanpa spasi.';
-        return false;
-      }
-      if (password.length < 6) {
-        statusText.textContent = 'Password minimal 6 karakter.';
-        return false;
-      }
-      statusText.textContent = '';
-      return true;
+    const userRef = ref(db, 'users/' + username);
+    const snapshot = await get(userRef);
+    if (snapshot.exists()) {
+      alert('Username sudah terdaftar, silakan login.');
+      return;
     }
 
-    // Toggle form login/register
-    function toggleLinkClick(e) {
-      e.preventDefault();
-      isLoginMode = !isLoginMode;
-      document.getElementById('form-title').textContent = isLoginMode ? 'Login' : 'Register';
-      actionBtn.textContent = isLoginMode ? 'Login' : 'Register';
-      toggleText.innerHTML = isLoginMode
-        ? 'Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a>'
-        : 'Sudah punya akun? <a href="#" id="toggle-link">Login di sini</a>';
-      statusText.textContent = '';
-      usernameInput.value = '';
-      passwordInput.value = '';
-      const newToggleLink = toggleText.querySelector('a');
-      newToggleLink.addEventListener('click', toggleLinkClick);
-    }
-    toggleLink.addEventListener('click', toggleLinkClick);
+    // Simpan user baru
+    await set(userRef, { password: password });
+    alert('Registrasi berhasil! Silakan login.');
+  };
 
-    // Register user
-    async function registerUser(username, password) {
-      try {
-        const userRef = ref(db, 'users/' + username);
-        const snapshot = await get(userRef);
-        if (snapshot.exists()) {
-          statusText.textContent = 'Username sudah dipakai, coba yang lain.';
-          return false;
-        } else {
-          await set(userRef, { password });
-          return true;
-        }
-      } catch (error) {
-        statusText.textContent = 'Error saat register: ' + error.message;
-        return false;
-      }
+  // Login user
+  btnLogin.onclick = async () => {
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+
+    if (!validateUsername(username)) {
+      alert('Username hanya boleh huruf dan angka, tanpa spasi atau karakter lain.');
+      return;
+    }
+    if (!validatePassword(password)) {
+      alert('Password minimal 6 karakter.');
+      return;
     }
 
-    // Login user
-    async function loginUser(username, password) {
-      try {
-        const userRef = ref(db, 'users/' + username);
-        const snapshot = await get(userRef);
-        if (!snapshot.exists()) {
-          statusText.textContent = 'Username tidak ditemukan.';
-          return false;
-        }
-        const userData = snapshot.val();
-        if (userData.password === password) {
-          return true;
-        } else {
-          statusText.textContent = 'Password salah.';
-          return false;
-        }
-      } catch (error) {
-        statusText.textContent = 'Error saat login: ' + error.message;
-        return false;
-      }
+    const userRef = ref(db, 'users/' + username);
+    const snapshot = await get(userRef);
+    if (!snapshot.exists()) {
+      alert('Username belum terdaftar, silakan registrasi dulu.');
+      return;
+    }
+    if (snapshot.val().password !== password) {
+      alert('Password salah.');
+      return;
     }
 
-    // Simpan sesi login di localStorage
-    function saveSession(username) {
-      localStorage.setItem('chatUser', username);
+    loggedInUsername = username;
+    userDisplay.textContent = `Logged in as: ${username}`;
+    loginSection.style.display = 'none';
+    chatSection.style.display = 'block';
+    usernameInput.value = '';
+    passwordInput.value = '';
+    loadChatMessages();
+  };
+
+  // Logout
+  btnLogout.onclick = () => {
+    loggedInUsername = null;
+    chatDiv.innerHTML = '';
+    loginSection.style.display = 'block';
+    chatSection.style.display = 'none';
+  };
+
+  // Kirim pesan
+  btnSend.onclick = () => {
+    const text = messageInput.value.trim();
+    if (!loggedInUsername) {
+      alert('Silakan login dulu!');
+      return;
+    }
+    if (text.length === 0) {
+      alert('Pesan tidak boleh kosong!');
+      return;
     }
 
-    // Hapus sesi login
-    function clearSession() {
-      localStorage.removeItem('chatUser');
-    }
-
-    // Cek sesi login saat load halaman
-    function checkSession() {
-      const user = localStorage.getItem('chatUser');
-      if (user) {
-        currentUser = user;
-        showChatSection();
-      } else {
-        showLoginRegister();
-      }
-    }
-
-    // Tampilkan form login/register
-    function showLoginRegister() {
-      loginRegisterDiv.style.display = 'block';
-      chatSection.style.display = 'none';
-      usernameInput.value = '';
-      passwordInput.value = '';
-      statusText.textContent = '';
-      currentUser = null;
-    }
-
-    // Tampilkan chat section
-    function showChatSection() {
-      loginRegisterDiv.style.display = 'none';
-      chatSection.style.display = 'flex';
-      userNameDisplay.textContent = currentUser;
-      statusText.textContent = '';
-      listenMessages();
-    }
-
-    // Kirim pesan ke Firebase
-    function sendMessage() {
-      const message = messageInput.value.trim();
-      if (!message) return;
-      const msgObj = {
-        username: currentUser,
-        message,
-        timestamp: Date.now()
-      };
-      push(ref(db, 'chat-messages'), msgObj);
-      messageInput.value = '';
-    }
-
-    // Tampilkan pesan realtime
-    function listenMessages() {
-      const chatRef = ref(db, 'chat-messages');
-      onValue(chatRef, (snapshot) => {
-        chatDiv.innerHTML = '';
-        const data = snapshot.val();
-        if (data) {
-          const messagesArr = Object.values(data);
-          messagesArr.sort((a,b) => a.timestamp - b.timestamp);
-          messagesArr.forEach(msg => {
-            const msgDiv = document.createElement('div');
-            msgDiv.classList.add('message');
-
-            // Header (username + waktu)
-            const headerDiv = document.createElement('div');
-            headerDiv.classList.add('msg-header');
-            headerDiv.textContent = `${msg.username} — ${formatTimestamp(msg.timestamp)}`;
-
-            // Isi pesan (menjorok)
-            const contentDiv = document.createElement('div');
-            contentDiv.classList.add('msg-content');
-            contentDiv.textContent = msg.message;
-
-            msgDiv.appendChild(headerDiv);
-            msgDiv.appendChild(contentDiv);
-
-            chatDiv.appendChild(msgDiv);
-          });
-          chatDiv.scrollTop = chatDiv.scrollHeight;
-        }
-      });
-    }
-
-    // Event tombol kirim pesan
-    sendBtn.addEventListener('click', sendMessage);
-    messageInput.addEventListener('keypress', e => {
-      if (e.key === 'Enter') sendMessage();
+    const timestamp = formatTimestamp(new Date());
+    const chatRef = ref(db, 'chat-messages');
+    push(chatRef, {
+      username: loggedInUsername,
+      text: text,
+      timestamp: timestamp
     });
+    messageInput.value = '';
+  };
 
-    // Event tombol login/register
-    actionBtn.addEventListener('click', async () => {
-      const username = usernameInput.value.trim();
-      const password = passwordInput.value.trim();
+  // Render pesan chat
+  function renderMessage(data) {
+    const message = data.val();
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('chat-message');
 
-      if (!validateInput(username, password)) return;
+    if (message.username === loggedInUsername) {
+      messageDiv.classList.add('right');
+    } else {
+      messageDiv.classList.add('left');
+    }
 
-      if (isLoginMode) {
-        const success = await loginUser(username, password);
-        if (success) {
-          currentUser = username;
-          saveSession(username);
-          showChatSection();
-        }
-      } else {
-        const success = await registerUser(username, password);
-        if (success) {
-          statusText.style.color = 'green';
-          statusText.textContent = 'Registrasi berhasil! Silakan login.';
-          isLoginMode = true;
-          document.getElementById('form-title').textContent = 'Login';
-          actionBtn.textContent = 'Login';
-          toggleText.innerHTML = 'Belum punya akun? <a href="#" id="toggle-link">Daftar di sini</a>';
-          usernameInput.value = '';
-          passwordInput.value = '';
-          statusText.style.color = 'red';
-          // re-attach listener toggle
-          const newToggleLink = toggleText.querySelector('a');
-          newToggleLink.addEventListener('click', toggleLinkClick);
-        }
-      }
-    });
+    const userTimeDiv = document.createElement('div');
+    userTimeDiv.classList.add('username-time');
+    userTimeDiv.textContent = message.username;
 
-    // Logout
-    logoutBtn.addEventListener('click', () => {
-      clearSession();
-      showLoginRegister();
-    });
+    const timeSpan = document.createElement('span');
+    timeSpan.classList.add('time');
+    timeSpan.textContent = message.timestamp;
+    userTimeDiv.appendChild(timeSpan);
 
-    // Mulai cek sesi login saat load halaman
-    checkSession();
-  </script>
+    const textDiv = document.createElement('div');
+    textDiv.classList.add('message-text');
+    textDiv.textContent = message.text;
+
+    messageDiv.appendChild(userTimeDiv);
+    messageDiv.appendChild(textDiv);
+
+    chatDiv.appendChild(messageDiv);
+    chatDiv.scrollTop = chatDiv.scrollHeight;
+  }
+
+  // Load dan listen pesan baru
+  function loadChatMessages() {
+    const chatRef = ref(db, 'chat-messages');
+    chatDiv.innerHTML = '';
+    onChildAdded(chatRef, renderMessage);
+  }
+
+</script>
+
 </body>
 </html>
